@@ -12,7 +12,11 @@ class AccountRepositoryMutable extends AccountRepository {
 
   override def createAccount(create: CreateAccount): Account = {
     val account =
-      Account(id = UUID.randomUUID(), title = create.title)
+      Account(
+        id = UUID.randomUUID(),
+        userId = create.userId,
+        title = create.title
+      )
     accountsStore.put(account.id, account)
     account
   }
