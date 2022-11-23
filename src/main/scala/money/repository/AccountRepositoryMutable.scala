@@ -18,9 +18,11 @@ class AccountRepositoryMutable extends AccountRepository {
   }
   override def updateAccount(update: UpdateAccount): Option[Account] = {
     accountsStore.get(update.id).map { account =>
-      val updatedAccount = account.copy(title = update.title)
-      accountsStore.put(account.id, updatedAccount)
-      updatedAccount
+      {
+        val updatedAccount = account.copy(title = update.title)
+        accountsStore.put(account.id, updatedAccount)
+        updatedAccount
+      }
     }
   }
   override def deleteAccount(id: UUID): Option[Account] = {

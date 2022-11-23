@@ -6,12 +6,21 @@ import money.repository.AccountRepositoryMutable
 import money.model._
 
 object MoneyApp extends App {
-  // val u1: User = User(UUID.randomUUID(), "Nikita", "Glazkov", "!")
+  val repository: AccountRepositoryMutable = new AccountRepositoryMutable
 
-  val repository = new AccountRepositoryMutable
-  repository.createAccount(
-    CreateAccount(id = UUID.randomUUID(), title = "test")
+  val createdAcc = repository.createAccount(
+    CreateAccount(title = "test")
   )
-  println("MoneyApp!")
+
+  repository.updateAccount(
+    UpdateAccount(id = createdAcc.id, title = "updated title")
+  )
+
+  val createdAcc2 = repository.createAccount(
+    CreateAccount(title = "test 2")
+  )
+
+  repository.deleteAccount(id = createdAcc2.id)
+
   println(repository.list())
 }
