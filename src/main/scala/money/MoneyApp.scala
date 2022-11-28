@@ -4,6 +4,7 @@ import money.model.User
 import java.util.UUID
 import money.repository.AccountRepositoryMutable
 import money.model._
+import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 
 object MoneyApp extends App {
   val user: User = User(
@@ -28,5 +29,6 @@ object MoneyApp extends App {
 
   repository.deleteAccount(id = createdAcc2.id)
 
-  println(repository.list())
+  println(repository.list().asJson)
+
 }
