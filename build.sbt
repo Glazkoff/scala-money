@@ -7,12 +7,13 @@ ThisBuild / organizationName := "misis"
 
 val akkaVersion = "2.6.18"
 val akkaHttpVersion = "10.2.7"
+val akkaHttpJsonVersion = "1.39.2"
 val circeVersion = "0.14.1"
 
 lazy val root = (project in file("."))
   .settings(
     name := "scala-money",
-    Compile / run / mainClass := Some("money.MoneyApp"),
+    Compile / run / mainClass := Some("money.MoneyHttpApp"),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
@@ -20,6 +21,7 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-actor" % akkaVersion,
       "com.typesafe.akka" %% "akka-stream" % akkaVersion,
       "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "de.heikoseeberger" %% "akka-http-circe" % akkaHttpJsonVersion,
       scalaTest % Test
     )
   )
