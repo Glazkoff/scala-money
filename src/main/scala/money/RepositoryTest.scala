@@ -19,7 +19,8 @@ object RepositoryTest {
   )
 
   repository.updateAccount(
-    UpdateAccount(id = createdAcc.id, title = "updated title")
+    id = createdAcc.id,
+    UpdateAccount(title = "updated title")
   )
 
   val createdAcc2 = repository.createAccount(

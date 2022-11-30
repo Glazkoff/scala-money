@@ -10,8 +10,9 @@ import java.util.UUID
 import money.model._
 import money.repository.AccountRepositoryMutable
 import scala.io.StdIn
+import money.route._
 
-object MoneyHttpApp extends App with FailFastCirceSupport {
+object MoneyHttpApp extends App {
   // Создаём систему акторов
   implicit val system: ActorSystem = ActorSystem("MoneyApp")
 
@@ -27,29 +28,11 @@ object MoneyHttpApp extends App with FailFastCirceSupport {
     CreateAccount(title = "test", userId = user.id)
   )
 
-  val route = (path("hello") & get) {
-    {
-      complete(
-        HttpEntity(
-          ContentTypes.`text/html(UTF-8)`,
-          "<h1>Тестовый HTML-заголовок!</h1>"
-        )
-      )
-    }
-  } ~
-    (path("accounts") & get) {
-      {
-        val list = repository.list()
-        complete(list)
-      }
-    } ~
-    (path("accounts") & post) {
-      entity(as[CreateAccount]) { newAccount =>
-        complete(repository.createAccount(newAccount))
-      }
-    }
+  val accountsRoute = new AccountsRoute(repository).route
+  val helloRoute = new HelloRoute().route
 
-  val bindingFuture = Http().newServerAt("0.0.0.0", 8081).bind(route)
+  val bindingFuture =
+    Http().newServerAt("0.0.0.0", 8081).bind(helloRoute ~ accountsRoute)
 
   println(
     s"Сервер запущен. Перейдите к http://localhost:8081/hello\nНажмите RETURN чтобы остановить..."
