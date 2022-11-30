@@ -55,6 +55,4 @@ object MoneyHttpApp extends App with FailFastCirceSupport {
     s"Сервер запущен. Перейдите к http://localhost:8081/hello\nНажмите RETURN чтобы остановить..."
   )
   StdIn.readLine()
-
-  // TODO: Доделать по инструкции - 1:18:51 видео от 23.11.2022
 }
