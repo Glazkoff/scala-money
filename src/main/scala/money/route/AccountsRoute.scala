@@ -22,19 +22,17 @@ class AccountsRoute(repository: AccountRepositoryMutable)
           complete(repository.createAccount(newAccount))
         }
       } ~
-      path("accounts" / JavaUUID) { id =>
-        get {
-          complete(repository.getAccount(id))
-        }
-        put {
-          entity(as[UpdateAccount]) { updateAccount =>
-            {
-              complete(repository.updateAccount(id, updateAccount))
-            }
+      (path("accounts" / JavaUUID) & get) { id =>
+        complete(repository.getAccount(id))
+      } ~
+      (path("accounts" / JavaUUID) & put) { id =>
+        entity(as[UpdateAccount]) { updateAccount =>
+          {
+            complete(repository.updateAccount(id, updateAccount))
           }
         }
-      // delete => {
-      //   complete(repository.deleteAccount(id))
-      // }
+      } ~
+      (path("accounts" / JavaUUID) & delete) { id =>
+        complete(repository.deleteAccount(id))
       }
 }
