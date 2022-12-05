@@ -4,7 +4,10 @@ import java.util.UUID
 
 final case class User(
     id: UUID,
-    firstName: String,
     lastName: String,
-    username: String
+    firstName: String,
+    patricity: Option[String],
+    phone: String,
+    priorityAccountID: Option[UUID],
+    isAdmin: Option[Boolean]
 )

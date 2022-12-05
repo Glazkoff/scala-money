@@ -2,6 +2,11 @@ package money.model
 
 import java.util.UUID
 
-final case class Account(id: UUID, userId: UUID, title: String)
-final case class CreateAccount(title: String, userId: UUID)
-final case class UpdateAccount(title: String)
+final case class Account(
+    id: UUID,
+    ownerUserId: UUID,
+    amount: Int = 0,
+    name: Option[String]
+)
+final case class CreateAccount(name: Option[String], userId: UUID)
+final case class UpdateAccount(name: Option[String])

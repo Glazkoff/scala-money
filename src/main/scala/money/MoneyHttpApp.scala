@@ -22,10 +22,13 @@ object MoneyHttpApp extends App {
     id = UUID.randomUUID(),
     firstName = "Nikita",
     lastName = "Glazkov",
-    username = "login"
+    patricity = Some("Olegovich"),
+    phone = "+796733357967",
+    priorityAccountID = None,
+    isAdmin = Some(false)
   )
   val createdAcc = repository.createAccount(
-    CreateAccount(title = "test", userId = user.id)
+    CreateAccount(name = Some("test"), userId = user.id)
   )
 
   val accountsRoute = new AccountsRoute(repository).route

@@ -11,14 +11,17 @@ class AccountRepositoryMutable extends AccountRepository {
   override def list(): List[Account] =
     accountsStore.toList.map(_._2)
 
-  override def getAccount(accountId: UUID): Account = accountsStore(accountId)
+  override def getAccount(accountId: UUID): Option[Account] = accountsStore.get(
+    accountId
+  )
 
   override def createAccount(create: CreateAccount): Account = {
     val account =
       Account(
         id = UUID.randomUUID(),
-        userId = create.userId,
-        title = create.title
+        ownerUserId = create.userId,
+        amount = 0,
+        name = create.name
       )
     accountsStore.put(account.id, account)
     account
@@ -29,7 +32,7 @@ class AccountRepositoryMutable extends AccountRepository {
   ): Option[Account] = {
     accountsStore.get(id).map { account =>
       {
-        val updatedAccount = account.copy(title = update.title)
+        val updatedAccount = account.copy(name = update.name)
         accountsStore.put(account.id, updatedAccount)
         updatedAccount
       }

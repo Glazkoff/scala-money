@@ -10,21 +10,24 @@ object RepositoryTest {
     id = UUID.randomUUID(),
     firstName = "Nikita",
     lastName = "Glazkov",
-    username = "login"
+    patricity = Some("Olegovich"),
+    phone = "+796733357967",
+    priorityAccountID = None,
+    isAdmin = Some(false)
   )
   val repository: AccountRepositoryMutable = new AccountRepositoryMutable
 
   val createdAcc = repository.createAccount(
-    CreateAccount(title = "test", userId = user.id)
+    CreateAccount(name = Some("test"), userId = user.id)
   )
 
   repository.updateAccount(
     id = createdAcc.id,
-    UpdateAccount(title = "updated title")
+    UpdateAccount(name = Some("updated title"))
   )
 
   val createdAcc2 = repository.createAccount(
-    CreateAccount(title = "test 2", userId = user.id)
+    CreateAccount(name = Some("test 2"), userId = user.id)
   )
 
   repository.deleteAccount(id = createdAcc2.id)
