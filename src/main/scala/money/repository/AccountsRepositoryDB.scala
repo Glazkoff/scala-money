@@ -16,4 +16,25 @@ class AccountsRepositoryDB extends AccountRepository {
 
   override def deleteAccount(id: UUID): Option[Account] = ???
 
+  override def refillAccount(
+      additionAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  override def withdrawFromAccount(
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  override def transferByAccountId(
+      accountId: UUID,
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  override def transferByPhone(
+      phone: String,
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  def setUserPriorityAccount(
+      priority: UserPriorityAccount
+  ): Option[UserPriorityAccount] = ???
 }

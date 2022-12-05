@@ -18,7 +18,7 @@ object RepositoryTest {
   val repository: AccountRepositoryMutable = new AccountRepositoryMutable
 
   val createdAcc = repository.createAccount(
-    CreateAccount(name = Some("test"), userId = user.id)
+    CreateAccount(name = Some("test"), ownerUserId = user.id)
   )
 
   repository.updateAccount(
@@ -27,7 +27,7 @@ object RepositoryTest {
   )
 
   val createdAcc2 = repository.createAccount(
-    CreateAccount(name = Some("test 2"), userId = user.id)
+    CreateAccount(name = Some("test 2"), ownerUserId = user.id)
   )
 
   repository.deleteAccount(id = createdAcc2.id)

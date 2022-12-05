@@ -19,7 +19,7 @@ class AccountRepositoryMutable extends AccountRepository {
     val account =
       Account(
         id = UUID.randomUUID(),
-        ownerUserId = create.userId,
+        ownerUserId = create.ownerUserId,
         amount = 0,
         name = create.name
       )
@@ -41,4 +41,31 @@ class AccountRepositoryMutable extends AccountRepository {
   override def deleteAccount(id: UUID): Option[Account] = {
     accountsStore.remove(id)
   }
+
+  // TODO:
+  override def refillAccount(
+      additionAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  // TODO:
+  override def withdrawFromAccount(
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  // TODO:
+  override def transferByAccountId(
+      accountId: UUID,
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  // TODO:
+  def transferByPhone(
+      phone: String,
+      withdrawalAmount: Int
+  ): Option[ChangeAccountAmountResult] = ???
+
+  // TODO:
+  def setUserPriorityAccount(
+      priority: UserPriorityAccount
+  ): Option[UserPriorityAccount] = ???
 }

@@ -28,7 +28,7 @@ object MoneyHttpApp extends App {
     isAdmin = Some(false)
   )
   val createdAcc = repository.createAccount(
-    CreateAccount(name = Some("test"), userId = user.id)
+    CreateAccount(name = Some("test"), ownerUserId = user.id)
   )
 
   val accountsRoute = new AccountsRoute(repository).route

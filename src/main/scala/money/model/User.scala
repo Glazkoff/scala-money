@@ -11,3 +11,8 @@ final case class User(
     priorityAccountID: Option[UUID],
     isAdmin: Option[Boolean]
 )
+
+final case class UserPriorityAccount(
+    userId: UUID,
+    accountId: UUID
+)
