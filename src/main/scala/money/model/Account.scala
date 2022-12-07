@@ -3,7 +3,7 @@ package money.model
 import java.util.UUID
 
 final case class Account(
-    id: UUID,
+    id: UUID = UUID.randomUUID(),
     ownerUserId: UUID,
     amount: Int = 0,
     name: Option[String]

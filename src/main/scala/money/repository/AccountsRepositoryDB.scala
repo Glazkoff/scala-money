@@ -1,42 +1,77 @@
 package money.repository
 
 import java.util.UUID
+import money.db.AccountDb._
 import money.model._
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import slick.jdbc.PostgresProfile.api._
 
-class AccountsRepositoryDB extends AccountRepository {
+class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
+    extends AccountRepository {
 
-  override def list(): List[Account] = ???
+  override def accountsList(): Future[Seq[Account]] = {
+    db.run(accountTable.result)
+  }
 
-  override def getAccount(id: UUID): Option[Account] = ???
+  override def getAccount(id: UUID): Future[Account] = {
+    db.run(accountTable.filter(_.id === id).result.head)
+  }
 
-  override def createAccount(item: CreateAccount): Account = ???
+  override def findAccount(id: UUID): Future[Option[Account]] = {
+    db.run(accountTable.filter(_.id === id).result.headOption)
+  }
 
-  override def updateAccount(id: UUID, item: UpdateAccount): Option[Account] =
-    ???
+  override def createAccount(create: CreateAccount): Future[Account] = {
+    val newAccount =
+      Account(ownerUserId = create.ownerUserId, name = create.name)
 
-  override def deleteAccount(id: UUID): Option[Account] = ???
+    for {
+      _ <- db.run(accountTable += newAccount)
+      res <- getAccount(newAccount.id)
+    } yield res
+  }
+
+  override def updateAccount(
+      id: UUID,
+      updateAccount: UpdateAccount
+  ): Future[Option[Account]] = {
+    for {
+      _ <- db.run {
+        accountTable
+          .filter(_.id === id)
+          .map(_.name)
+          .update(updateAccount.name)
+      }
+      res <- findAccount(id)
+    } yield res
+  }
+
+  override def deleteAccount(id: UUID): Future[Unit] = {
+    db.run(accountTable.filter(_.id === id).delete).map(_ => ())
+  }
 
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   override def transferByAccountId(
       accountId: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   override def transferByPhone(
       phone: String,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   def setUserPriorityAccount(
       priority: UserPriorityAccount
-  ): Option[UserPriorityAccount] = ???
+  ): Future[Option[UserPriorityAccount]] = ???
 }

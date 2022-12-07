@@ -1,50 +1,54 @@
 package money.repository
 
-import money.model._
 import java.util.UUID
+import money.model._
+import scala.concurrent.Future
 
 trait AccountRepository {
   // Список счётов
-  def list(): List[Account]
+  def accountsList(): Future[Seq[Account]]
 
   // Детализация по счёту
-  def getAccount(id: UUID): Option[Account]
+  def getAccount(id: UUID): Future[Account]
+
+  // Поиск по счёту
+  def findAccount(id: UUID): Future[Option[Account]]
 
   // Создание счёта
-  def createAccount(item: CreateAccount): Account
+  def createAccount(create: CreateAccount): Future[Account]
 
   // Редактирование счёта
-  def updateAccount(id: UUID, item: UpdateAccount): Option[Account]
+  def updateAccount(id: UUID, update: UpdateAccount): Future[Option[Account]]
 
   // Удаление счёта
-  def deleteAccount(id: UUID): Option[Account]
+  def deleteAccount(id: UUID): Future[Unit]
 
   // Пополнение счёта
   def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Option[ChangeAccountAmountResult]
+  ): Future[Option[ChangeAccountAmountResult]]
 
   // Обналичить со счёта
   def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult]
+  ): Future[Option[ChangeAccountAmountResult]]
 
   // TODO: Перевести деньги по ID счёта
   def transferByAccountId(
       accountId: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult]
+  ): Future[Option[ChangeAccountAmountResult]]
 
   // TODO: Перевести деньги по номеру телефона
   def transferByPhone(
       phone: String,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult]
+  ): Future[Option[ChangeAccountAmountResult]]
 
   // TODO: Выбрать приоритетный счёт
   def setUserPriorityAccount(
       priority: UserPriorityAccount
-  ): Option[UserPriorityAccount]
+  ): Future[Option[UserPriorityAccount]]
 }

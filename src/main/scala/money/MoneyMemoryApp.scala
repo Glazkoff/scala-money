@@ -9,12 +9,14 @@ import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 import java.util.UUID
 import money.model._
 import money.repository.AccountRepositoryMutable
-import scala.io.StdIn
 import money.route._
+import scala.concurrent.ExecutionContext
+import scala.io.StdIn
 
-object MoneyHttpApp extends App {
+object MoneyMemoryApp extends App {
   // Создаём систему акторов
   implicit val system: ActorSystem = ActorSystem("MoneyApp")
+  implicit val ec: ExecutionContext = system.dispatcher
 
   // Создаём данные для хранения в репозитории
   val repository: AccountRepositoryMutable = new AccountRepositoryMutable
@@ -27,12 +29,16 @@ object MoneyHttpApp extends App {
     priorityAccountID = None,
     isAdmin = Some(false)
   )
-  val createdAcc = repository.createAccount(
-    CreateAccount(name = Some("test"), ownerUserId = user.id)
-  )
-
-  repository.refillAccount(createdAcc.id, 1000)
-  repository.withdrawFromAccount(createdAcc.id, 500)
+  repository
+    .createAccount(
+      CreateAccount(name = Some("test"), ownerUserId = user.id)
+    )
+    .map { account =>
+      {
+        repository.refillAccount(account.id, 1000)
+        repository.withdrawFromAccount(account.id, 500)
+      }
+    }
 
   val accountsRoute = new AccountsRoute(repository).route
   val helloRoute = new HelloRoute().route

@@ -10,7 +10,7 @@ networks:
 
 services:
   postgres:
-    container_name: postgres
+    container_name: scala-postgres
     image: postgres:15-alpine
     ports:
       - "5432:5432"
@@ -22,7 +22,7 @@ services:
       - postgres
 
   pgadmin:
-    container_name: pgadmin
+    container_name: scala-pgadmin
     image: dpage/pgadmin4
     env_file: .env
     volumes:
@@ -33,10 +33,12 @@ services:
     networks:
       - postgres
 
-  scala:
-    container_name: scala
-    image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.7.1_2.13.9
-    volumes:
-      - .:/app
-    networks:
-      - postgres
+  # scala:
+  #   container_name: scala
+  #   image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.7.1_2.13.9
+  #   ports:
+  #     - "8005:8081"
+  #   volumes:
+  #     - .:/app
+  #   networks:
+  #     - postgres

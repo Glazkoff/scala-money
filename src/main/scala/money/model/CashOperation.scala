@@ -11,7 +11,7 @@ object OperationType {
 }
 
 final case class CashOperation(
-    id: UUID,
+    id: UUID = UUID.randomUUID(),
     accountId: UUID,
     amount: Int,
     opType: OperationType,

@@ -1,21 +1,33 @@
 package money.repository
 
-import scala.collection.mutable
 import java.util.UUID
 import money.model._
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-class AccountRepositoryMutable extends AccountRepository {
+class AccountRepositoryMutable(implicit val ex: ExecutionContext)
+    extends AccountRepository {
 
   private val accountsStore = mutable.Map[UUID, Account]()
 
-  override def list(): List[Account] =
+  override def accountsList(): Future[List[Account]] = Future {
     accountsStore.toList.map(_._2)
+  }
 
-  override def getAccount(accountId: UUID): Option[Account] = accountsStore.get(
-    accountId
-  )
+  override def getAccount(accountId: UUID): Future[Account] = Future {
+    accountsStore(
+      accountId
+    )
+  }
 
-  override def createAccount(create: CreateAccount): Account = {
+  override def findAccount(accountId: UUID): Future[Option[Account]] = Future {
+    accountsStore.get(
+      accountId
+    )
+  }
+
+  override def createAccount(create: CreateAccount): Future[Account] = Future {
     val account =
       Account(
         id = UUID.randomUUID(),
@@ -26,10 +38,11 @@ class AccountRepositoryMutable extends AccountRepository {
     accountsStore.put(account.id, account)
     account
   }
+
   override def updateAccount(
       id: UUID,
       update: UpdateAccount
-  ): Option[Account] = {
+  ): Future[Option[Account]] = Future {
     accountsStore.get(id).map { account =>
       {
         val updatedAccount = account.copy(name = update.name)
@@ -38,14 +51,15 @@ class AccountRepositoryMutable extends AccountRepository {
       }
     }
   }
-  override def deleteAccount(id: UUID): Option[Account] = {
+
+  override def deleteAccount(id: UUID): Future[Unit] = Future {
     accountsStore.remove(id)
   }
 
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Option[ChangeAccountAmountResult] = {
+  ): Future[Option[ChangeAccountAmountResult]] = Future {
     accountsStore.get(id).map { account =>
       {
         val updatedAccount =
@@ -63,21 +77,20 @@ class AccountRepositoryMutable extends AccountRepository {
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = {
+  ): Future[Option[ChangeAccountAmountResult]] = Future {
     accountsStore.get(id).map { account =>
-      {
-        if (account.amount >= withdrawalAmount) {
-          val updatedAccount =
-            account.copy(amount = account.amount - withdrawalAmount)
-          accountsStore.put(account.id, updatedAccount)
-          ChangeAccountAmountResult(
-            id,
-            updatedAccount.amount
-          )
-        } else {
-          return None
-        }
-      }
+      // TODO: добавить проверку на account.amount >= withdrawalAmount
+      // if (account.amount >= withdrawalAmount) {
+      val updatedAccount =
+        account.copy(amount = account.amount - withdrawalAmount)
+      accountsStore.put(account.id, updatedAccount)
+      ChangeAccountAmountResult(
+        id,
+        updatedAccount.amount
+      )
+      // } else {
+      //   raiseException
+      // }
     }
   }
 
@@ -85,16 +98,16 @@ class AccountRepositoryMutable extends AccountRepository {
   override def transferByAccountId(
       accountId: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   // TODO:
   def transferByPhone(
       phone: String,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Future[Option[ChangeAccountAmountResult]] = ???
 
   // TODO:
   def setUserPriorityAccount(
       priority: UserPriorityAccount
-  ): Option[UserPriorityAccount] = ???
+  ): Future[Option[UserPriorityAccount]] = ???
 }
