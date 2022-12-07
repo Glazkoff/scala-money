@@ -42,15 +42,44 @@ class AccountRepositoryMutable extends AccountRepository {
     accountsStore.remove(id)
   }
 
-  // TODO:
   override def refillAccount(
+      id: UUID,
       additionAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Option[ChangeAccountAmountResult] = {
+    accountsStore.get(id).map { account =>
+      {
+        val updatedAccount =
+          account.copy(amount = account.amount + additionAmount)
+        accountsStore.put(account.id, updatedAccount)
+        ChangeAccountAmountResult(
+          id,
+          updatedAccount.amount
+        )
+      }
+    }
+  }
 
   // TODO:
   override def withdrawFromAccount(
+      id: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+  ): Option[ChangeAccountAmountResult] = {
+    accountsStore.get(id).map { account =>
+      {
+        if (account.amount >= withdrawalAmount) {
+          val updatedAccount =
+            account.copy(amount = account.amount - withdrawalAmount)
+          accountsStore.put(account.id, updatedAccount)
+          ChangeAccountAmountResult(
+            id,
+            updatedAccount.amount
+          )
+        } else {
+          return None
+        }
+      }
+    }
+  }
 
   // TODO:
   override def transferByAccountId(

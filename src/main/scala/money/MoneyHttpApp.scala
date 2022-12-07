@@ -31,6 +31,9 @@ object MoneyHttpApp extends App {
     CreateAccount(name = Some("test"), ownerUserId = user.id)
   )
 
+  repository.refillAccount(createdAcc.id, 1000)
+  repository.withdrawFromAccount(createdAcc.id, 500)
+
   val accountsRoute = new AccountsRoute(repository).route
   val helloRoute = new HelloRoute().route
 
@@ -38,7 +41,7 @@ object MoneyHttpApp extends App {
     Http().newServerAt("0.0.0.0", 8081).bind(helloRoute ~ accountsRoute)
 
   println(
-    s"Сервер запущен. Перейдите к http://localhost:8081/hello\nНажмите RETURN чтобы остановить..."
+    s"Server started. Go to -> http://localhost:8081/hello\nPress RETURN to stop..."
   )
   StdIn.readLine()
 }

@@ -20,10 +20,14 @@ trait AccountRepository {
   def deleteAccount(id: UUID): Option[Account]
 
   // Пополнение счёта
-  def refillAccount(additionAmount: Int): Option[ChangeAccountAmountResult]
+  def refillAccount(
+      id: UUID,
+      additionAmount: Int
+  ): Option[ChangeAccountAmountResult]
 
   // Обналичить со счёта
   def withdrawFromAccount(
+      id: UUID,
       withdrawalAmount: Int
   ): Option[ChangeAccountAmountResult]
 

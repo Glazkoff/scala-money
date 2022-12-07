@@ -17,10 +17,12 @@ class AccountsRepositoryDB extends AccountRepository {
   override def deleteAccount(id: UUID): Option[Account] = ???
 
   override def refillAccount(
+      id: UUID,
       additionAmount: Int
   ): Option[ChangeAccountAmountResult] = ???
 
   override def withdrawFromAccount(
+      id: UUID,
       withdrawalAmount: Int
   ): Option[ChangeAccountAmountResult] = ???
 
