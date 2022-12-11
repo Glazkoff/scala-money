@@ -42,14 +42,17 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
   override def updateAccount(
       id: UUID,
       update: UpdateAccount
-  ): Future[Option[Account]] = Future {
-    accountsStore.get(id).map { account =>
-      {
-        val updatedAccount = account.copy(name = update.name)
-        accountsStore.put(account.id, updatedAccount)
-        updatedAccount
+  ): Future[Either[String, Account]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        {
+          val updatedAccount = account.copy(name = update.name)
+          accountsStore.put(account.id, updatedAccount)
+          Right(updatedAccount)
+        }
       }
-    }
+      .getOrElse(Left("Счёт не найден"))
   }
 
   override def deleteAccount(id: UUID): Future[Unit] = Future {

@@ -7,9 +7,12 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 import money.model._
 import money.repository.AccountRepository
+import scala.concurrent.ExecutionContext
+import scala.util.{Success, Failure}
 
-class AccountsRoute(repository: AccountRepository)
-    extends FailFastCirceSupport {
+class AccountsRoute(repository: AccountRepository)(implicit
+    ec: ExecutionContext
+) extends FailFastCirceSupport {
   def route =
     (path("accounts") & get) {
       {
@@ -28,7 +31,11 @@ class AccountsRoute(repository: AccountRepository)
       (path("accounts" / JavaUUID) & put) { id =>
         entity(as[UpdateAccount]) { updateAccount =>
           {
-            complete(repository.updateAccount(id, updateAccount))
+            onSuccess(repository.updateAccount(id, updateAccount)) {
+              case Right(value) => complete(value)
+              case Left(s) =>
+                complete(StatusCodes.NotAcceptable, s)
+            }
           }
         }
       } ~

@@ -35,16 +35,27 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   override def updateAccount(
       id: UUID,
       updateAccount: UpdateAccount
-  ): Future[Option[Account]] = {
+  ): Future[Either[String, Account]] = {
+    val query = accountTable.filter(_.id === id).map(_.name)
+
     for {
-      _ <- db.run {
-        accountTable
-          .filter(_.id === id)
-          .map(_.name)
-          .update(updateAccount.name)
+      oldAccountNameOpt <- db.run(query.result.headOption)
+      newName = updateAccount.name
+      updatedName = oldAccountNameOpt
+        .map { oldName =>
+          {
+            if (oldName == newName) Left("Новое название совпадает с текущим!")
+            else Right(newName)
+          }
+        }
+        .getOrElse(Left("Счёт не найден!"))
+      future = updatedName.map(name => db.run { query.update(name) }) match {
+        case Right(future) => future.map(Right(_))
+        case Left(s)       => Future.successful(Left(s))
       }
+      updated <- future
       res <- findAccount(id)
-    } yield res
+    } yield updated.map(_ => res.get)
   }
 
   override def deleteAccount(id: UUID): Future[Unit] = {

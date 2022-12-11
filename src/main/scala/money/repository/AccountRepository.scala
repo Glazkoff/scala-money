@@ -18,7 +18,10 @@ trait AccountRepository {
   def createAccount(create: CreateAccount): Future[Account]
 
   // Редактирование счёта
-  def updateAccount(id: UUID, update: UpdateAccount): Future[Option[Account]]
+  def updateAccount(
+      id: UUID,
+      update: UpdateAccount
+  ): Future[Either[String, Account]]
 
   // Удаление счёта
   def deleteAccount(id: UUID): Future[Unit]
