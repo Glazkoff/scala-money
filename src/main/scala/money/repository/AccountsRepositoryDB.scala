@@ -65,12 +65,53 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+  ): Future[Either[String, ChangeAccountAmountResult]] = {
+    val query = accountTable.filter(_.id === id).map(_.amount)
+
+    for {
+      oldAccountOpt <- db.run(query.result.headOption)
+      updatedAmount = oldAccountOpt
+        .map { oldAmount => Right(oldAmount + additionAmount) }
+        .getOrElse(Left("Счёт не найден!"))
+      future = updatedAmount.map(amount =>
+        db.run { query.update(amount) }
+      ) match {
+        case Right(future) => future.map(Right(_))
+        case Left(s)       => Future.successful(Left(s))
+      }
+      updated <- future
+      res <- findAccount(id)
+    } yield updated.map(_ => ChangeAccountAmountResult(id, res.get.amount))
+  }
 
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+  ): Future[Either[String, ChangeAccountAmountResult]] = {
+    val query = accountTable.filter(_.id === id).map(_.amount)
+
+    for {
+      oldAccountOpt <- db.run(query.result.headOption)
+      updatedAmount = oldAccountOpt
+        .map { oldAmount =>
+          {
+            if (oldAmount >= withdrawalAmount)
+              Right(oldAmount - withdrawalAmount)
+            else
+              Left("Недостаточно средств!")
+          }
+        }
+        .getOrElse(Left("Счёт не найден!"))
+      future = updatedAmount.map(amount =>
+        db.run { query.update(amount) }
+      ) match {
+        case Right(future) => future.map(Right(_))
+        case Left(s)       => Future.successful(Left(s))
+      }
+      updated <- future
+      res <- findAccount(id)
+    } yield updated.map(_ => ChangeAccountAmountResult(id, res.get.amount))
+  }
 
   override def transferByAccountId(
       accountId: UUID,

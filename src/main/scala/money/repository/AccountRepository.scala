@@ -30,27 +30,27 @@ trait AccountRepository {
   def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]]
+  ): Future[Either[String, ChangeAccountAmountResult]]
 
   // Обналичить со счёта
   def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]]
+  ): Future[Either[String, ChangeAccountAmountResult]]
 
-  // TODO: Перевести деньги по ID счёта
+  //  Перевести деньги по ID счёта
   def transferByAccountId(
       accountId: UUID,
       withdrawalAmount: Int
   ): Future[Option[ChangeAccountAmountResult]]
 
-  // TODO: Перевести деньги по номеру телефона
+  // Перевести деньги по номеру телефона
   def transferByPhone(
       phone: String,
       withdrawalAmount: Int
   ): Future[Option[ChangeAccountAmountResult]]
 
-  // TODO: Выбрать приоритетный счёт
+  // Выбрать приоритетный счёт
   def setUserPriorityAccount(
       priority: UserPriorityAccount
   ): Future[Option[UserPriorityAccount]]

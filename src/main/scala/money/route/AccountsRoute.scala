@@ -41,5 +41,37 @@ class AccountsRoute(repository: AccountRepository)(implicit
       } ~
       (path("accounts" / JavaUUID) & delete) { id =>
         complete(repository.deleteAccount(id))
+      } ~
+      (path("cash") & post) {
+        entity(as[CashOperation]) { cashOperation =>
+          {
+            cashOperation.opType match {
+              case "TOP_UP" =>
+                onSuccess(
+                  repository.refillAccount(
+                    cashOperation.accountId,
+                    cashOperation.amountChange
+                  )
+                ) {
+                  case Right(value) => complete(value)
+                  case Left(s) =>
+                    complete(StatusCodes.NotAcceptable, s)
+                }
+              case "CASHING_OUT" =>
+                onSuccess(
+                  repository.withdrawFromAccount(
+                    cashOperation.accountId,
+                    cashOperation.amountChange
+                  )
+                ) {
+                  case Right(value) => complete(value)
+                  case Left(s) =>
+                    complete(StatusCodes.NotAcceptable, s)
+                }
+              case _ =>
+                complete(StatusCodes.NotAcceptable, "Некорректный запрос!")
+            }
+          }
+        }
       }
 }

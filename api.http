@@ -23,3 +23,14 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:8081/accounts/5b79e997-b67e-4ac4-a337-ab3b485f9736 HTTP/1.1
+
+
+### 
+POST http://localhost:8081/cash HTTP/1.1
+Content-Type: application/json
+
+{
+  "accountId": "af8ca419-9b44-4186-9f97-d4fa523b6d5c",
+  "amountChange": 200,
+  "opType": "CASHING_OUT"
+}

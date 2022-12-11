@@ -62,39 +62,45 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = Future {
-    accountsStore.get(id).map { account =>
-      {
-        val updatedAccount =
-          account.copy(amount = account.amount + additionAmount)
-        accountsStore.put(account.id, updatedAccount)
-        ChangeAccountAmountResult(
-          id,
-          updatedAccount.amount
-        )
+  ): Future[Either[String, ChangeAccountAmountResult]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        {
+          val updatedAccount =
+            account.copy(amount = account.amount + additionAmount)
+          accountsStore.put(account.id, updatedAccount)
+          Right(
+            ChangeAccountAmountResult(
+              id,
+              updatedAccount.amount
+            )
+          )
+        }
       }
-    }
+      .getOrElse(Left("weae"))
   }
 
   // TODO:
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = Future {
-    accountsStore.get(id).map { account =>
-      // TODO: добавить проверку на account.amount >= withdrawalAmount
-      // if (account.amount >= withdrawalAmount) {
-      val updatedAccount =
-        account.copy(amount = account.amount - withdrawalAmount)
-      accountsStore.put(account.id, updatedAccount)
-      ChangeAccountAmountResult(
-        id,
-        updatedAccount.amount
-      )
-      // } else {
-      //   raiseException
-      // }
-    }
+  ): Future[Either[String, ChangeAccountAmountResult]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        // TODO: добавить проверку на account.amount >= withdrawalAmount
+        val updatedAccount =
+          account.copy(amount = account.amount - withdrawalAmount)
+        accountsStore.put(account.id, updatedAccount)
+        Right(
+          ChangeAccountAmountResult(
+            id,
+            updatedAccount.amount
+          )
+        )
+      }
+      .getOrElse(Left("Счёт не найден!"))
   }
 
   // TODO:
