@@ -6,20 +6,41 @@ POST http://localhost:8081/accounts HTTP/1.1
 Content-Type: application/json
 
 {
-  "userId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86",
-  "title": "test"
+  "ownerUserId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86",
+  "name": "test"
 }
 
 ###
-GET http://localhost:8081/accounts/bc17efe4-3fd0-443e-8ea4-b2eda8b383ae
+GET http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05
 
 ###
-PUT http://localhost:8081/accounts/160fab12-fc0a-46f2-854d-a7894cd76e78 HTTP/1.1
+PUT http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
 Content-Type: application/json
 
 {
-  "title": "new test!"
+  "name": "new test!"
 }
 
 ###
-DELETE http://localhost:8081/accounts/160fab12-fc0a-46f2-854d-a7894cd76e78 HTTP/1.1
+DELETE http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
+
+
+### 
+POST http://localhost:8081/cash HTTP/1.1
+Content-Type: application/json
+
+{
+  "accountId": "75e3652b-c0d1-46bb-b055-f28714f7b4fd",
+  "amountChange": 10000,
+  "opType": "TOP_UP"
+}
+
+### 
+POST http://localhost:8081/transfer/by_account_id HTTP/1.1
+Content-Type: application/json
+
+{
+  "senderAccountId": "75e3652b-c0d1-46bb-b055-f28714f7b4fd",
+  "recipientAccountId": "12c4aaac-735b-4263-a381-7c788648870c",
+  "transferAmount": 10000
+}

@@ -1,21 +1,37 @@
 package money.repository
 
-import scala.collection.mutable
 import java.util.UUID
 import money.model._
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-class AccountRepositoryMutable extends AccountRepository {
+class AccountRepositoryMutable(implicit val ex: ExecutionContext)
+    extends AccountRepository {
 
   private val accountsStore = mutable.Map[UUID, Account]()
 
-  override def list(): List[Account] =
+  override def accountsList(): Future[List[Account]] = Future {
     accountsStore.toList.map(_._2)
+  }
 
-  override def getAccount(accountId: UUID): Option[Account] = accountsStore.get(
-    accountId
-  )
+  override def getAccount(accountId: UUID): Future[Account] = Future {
+    accountsStore(
+      accountId
+    )
+  }
 
-  override def createAccount(create: CreateAccount): Account = {
+  override def findAccount(accountId: UUID): Future[Option[Account]] = Future {
+    accountsStore.get(
+      accountId
+    )
+  }
+
+  override def accountDetalization(
+      id: UUID
+  ): Future[Either[APIError, Account]] = ???
+
+  override def createAccount(create: CreateAccount): Future[Account] = Future {
     val account =
       Account(
         id = UUID.randomUUID(),
@@ -26,75 +42,85 @@ class AccountRepositoryMutable extends AccountRepository {
     accountsStore.put(account.id, account)
     account
   }
+
   override def updateAccount(
       id: UUID,
       update: UpdateAccount
-  ): Option[Account] = {
-    accountsStore.get(id).map { account =>
-      {
-        val updatedAccount = account.copy(name = update.name)
-        accountsStore.put(account.id, updatedAccount)
-        updatedAccount
+  ): Future[Either[APIError, Account]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        {
+          val updatedAccount = account.copy(name = update.name)
+          accountsStore.put(account.id, updatedAccount)
+          Right(updatedAccount)
+        }
       }
+      .getOrElse(Left(APIError("Счёт не найден!")))
+  }
+
+  override def deleteAccount(id: UUID): Future[Either[APIError, Unit]] =
+    Future {
+      Right(accountsStore.remove(id))
     }
-  }
-  override def deleteAccount(id: UUID): Option[Account] = {
-    accountsStore.remove(id)
-  }
 
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Option[ChangeAccountAmountResult] = {
-    accountsStore.get(id).map { account =>
-      {
-        val updatedAccount =
-          account.copy(amount = account.amount + additionAmount)
-        accountsStore.put(account.id, updatedAccount)
-        ChangeAccountAmountResult(
-          id,
-          updatedAccount.amount
-        )
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        {
+          val updatedAccount =
+            account.copy(amount = account.amount + additionAmount)
+          accountsStore.put(account.id, updatedAccount)
+          Right(
+            ChangeAccountAmountResult(
+              id,
+              updatedAccount.amount
+            )
+          )
+        }
       }
-    }
+      .getOrElse(Left(APIError("Аккаунт не найден!")))
   }
 
   // TODO:
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = {
-    accountsStore.get(id).map { account =>
-      {
-        if (account.amount >= withdrawalAmount) {
-          val updatedAccount =
-            account.copy(amount = account.amount - withdrawalAmount)
-          accountsStore.put(account.id, updatedAccount)
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = Future {
+    accountsStore
+      .get(id)
+      .map { account =>
+        // TODO: добавить проверку на account.amount >= withdrawalAmount
+        val updatedAccount =
+          account.copy(amount = account.amount - withdrawalAmount)
+        accountsStore.put(account.id, updatedAccount)
+        Right(
           ChangeAccountAmountResult(
             id,
             updatedAccount.amount
           )
-        } else {
-          return None
-        }
+        )
       }
-    }
+      .getOrElse(Left(APIError("Счёт не найден!")))
   }
 
   // TODO:
   override def transferByAccountId(
-      accountId: UUID,
-      withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+      transfer: TransferByAccountId
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = ???
 
   // TODO:
   def transferByPhone(
       phone: String,
-      withdrawalAmount: Int
-  ): Option[ChangeAccountAmountResult] = ???
+      transferAmount: Int
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = ???
 
   // TODO:
   def setUserPriorityAccount(
       priority: UserPriorityAccount
-  ): Option[UserPriorityAccount] = ???
+  ): Future[Option[UserPriorityAccount]] = ???
 }
