@@ -27,6 +27,10 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
     )
   }
 
+  override def accountDetalization(
+      id: UUID
+  ): Future[Either[APIError, Account]] = ???
+
   override def createAccount(create: CreateAccount): Future[Account] = Future {
     val account =
       Account(
@@ -42,7 +46,7 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
   override def updateAccount(
       id: UUID,
       update: UpdateAccount
-  ): Future[Either[String, Account]] = Future {
+  ): Future[Either[APIError, Account]] = Future {
     accountsStore
       .get(id)
       .map { account =>
@@ -52,12 +56,13 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
           Right(updatedAccount)
         }
       }
-      .getOrElse(Left("Счёт не найден"))
+      .getOrElse(Left(APIError("Счёт не найден!")))
   }
 
-  override def deleteAccount(id: UUID): Future[Unit] = Future {
-    accountsStore.remove(id)
-  }
+  override def deleteAccount(id: UUID): Future[Either[APIError, Unit]] =
+    Future {
+      Right(accountsStore.remove(id))
+    }
 
   override def refillAccount(
       id: UUID,

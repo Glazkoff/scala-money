@@ -22,6 +22,16 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
     db.run(accountTable.filter(_.id === id).result.headOption)
   }
 
+  def accountDetalization(id: UUID): Future[Either[APIError, Account]] = {
+    val query = accountTable.filter(_.id === id)
+    for {
+      accountOpt <- db.run(query.result.headOption)
+      res = accountOpt
+        .map(Right(_))
+        .getOrElse(Left(APIError("Счёт не найден!")))
+    } yield res
+  }
+
   override def createAccount(create: CreateAccount): Future[Account] = {
     val newAccount =
       Account(ownerUserId = create.ownerUserId, name = create.name)
@@ -35,7 +45,7 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   override def updateAccount(
       id: UUID,
       updateAccount: UpdateAccount
-  ): Future[Either[String, Account]] = {
+  ): Future[Either[APIError, Account]] = {
     val query = accountTable.filter(_.id === id).map(_.name)
 
     for {
@@ -44,11 +54,12 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
       updatedName = oldAccountNameOpt
         .map { oldName =>
           {
-            if (oldName == newName) Left("Новое название совпадает с текущим!")
+            if (oldName == newName)
+              Left(APIError("Новое название совпадает с текущим!"))
             else Right(newName)
           }
         }
-        .getOrElse(Left("Счёт не найден!"))
+        .getOrElse(Left(APIError("Счёт не найден!")))
       future = updatedName.map(name => db.run { query.update(name) }) match {
         case Right(future) => future.map(Right(_))
         case Left(s)       => Future.successful(Left(s))
@@ -58,8 +69,25 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
     } yield updated.map(_ => res.get)
   }
 
-  override def deleteAccount(id: UUID): Future[Unit] = {
-    db.run(accountTable.filter(_.id === id).delete).map(_ => ())
+  override def deleteAccount(id: UUID): Future[Either[APIError, Unit]] = {
+    val query = accountTable.filter(_.id === id)
+    for {
+      accountOpt <- db.run(query.result.headOption)
+      deletedAccount = accountOpt
+        .map(account => {
+          if (account.amount != 0) {
+            Left(APIError("Нельзя удалить счёт, если сумма на счёте не равна 0!"))
+          } else {
+            Right(account)
+          }
+        })
+        .getOrElse(Left(APIError("Счёт не найден!")))
+      future = deletedAccount.map(amount => db.run { query.delete }) match {
+        case Right(future) => future.map(Right(_))
+        case Left(s)       => Future.successful(Left(s))
+      }
+      deleted <- future
+    } yield { deleted.map(Right(_)) }
   }
 
   override def refillAccount(

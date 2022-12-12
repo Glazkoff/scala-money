@@ -8,11 +8,14 @@ trait AccountRepository {
   // Список счётов
   def accountsList(): Future[Seq[Account]]
 
-  // Детализация по счёту
+  // Получение счёта
   def getAccount(id: UUID): Future[Account]
 
   // Поиск по счёту
   def findAccount(id: UUID): Future[Option[Account]]
+
+  // Детализация счёта в API
+  def accountDetalization(id: UUID): Future[Either[APIError, Account]]
 
   // Создание счёта
   def createAccount(create: CreateAccount): Future[Account]
@@ -21,10 +24,10 @@ trait AccountRepository {
   def updateAccount(
       id: UUID,
       update: UpdateAccount
-  ): Future[Either[String, Account]]
+  ): Future[Either[APIError, Account]]
 
   // Удаление счёта
-  def deleteAccount(id: UUID): Future[Unit]
+  def deleteAccount(id: UUID): Future[Either[APIError, Unit]]
 
   // Пополнение счёта
   def refillAccount(

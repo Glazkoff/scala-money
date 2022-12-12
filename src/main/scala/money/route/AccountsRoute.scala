@@ -26,7 +26,11 @@ class AccountsRoute(repository: AccountRepository)(implicit
         }
       } ~
       (path("accounts" / JavaUUID) & get) { id =>
-        complete(repository.getAccount(id))
+        onSuccess(repository.accountDetalization(id)) {
+          case Right(value) => complete(value)
+          case Left(s) =>
+            complete(StatusCodes.NotAcceptable, s)
+        }
       } ~
       (path("accounts" / JavaUUID) & put) { id =>
         entity(as[UpdateAccount]) { updateAccount =>
