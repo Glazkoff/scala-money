@@ -62,7 +62,7 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Future[Either[String, ChangeAccountAmountResult]] = Future {
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = Future {
     accountsStore
       .get(id)
       .map { account =>
@@ -78,14 +78,14 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
           )
         }
       }
-      .getOrElse(Left("weae"))
+      .getOrElse(Left(APIError("Аккаунт не найден!")))
   }
 
   // TODO:
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Future[Either[String, ChangeAccountAmountResult]] = Future {
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = Future {
     accountsStore
       .get(id)
       .map { account =>
@@ -100,20 +100,19 @@ class AccountRepositoryMutable(implicit val ex: ExecutionContext)
           )
         )
       }
-      .getOrElse(Left("Счёт не найден!"))
+      .getOrElse(Left(APIError("Счёт не найден!")))
   }
 
   // TODO:
   override def transferByAccountId(
-      accountId: UUID,
-      withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+      transfer: TransferByAccountId
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = ???
 
   // TODO:
   def transferByPhone(
       phone: String,
-      withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+      transferAmount: Int
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = ???
 
   // TODO:
   def setUserPriorityAccount(

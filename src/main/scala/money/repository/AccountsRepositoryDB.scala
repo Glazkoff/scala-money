@@ -65,14 +65,14 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   override def refillAccount(
       id: UUID,
       additionAmount: Int
-  ): Future[Either[String, ChangeAccountAmountResult]] = {
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = {
     val query = accountTable.filter(_.id === id).map(_.amount)
 
     for {
       oldAccountOpt <- db.run(query.result.headOption)
       updatedAmount = oldAccountOpt
         .map { oldAmount => Right(oldAmount + additionAmount) }
-        .getOrElse(Left("Счёт не найден!"))
+        .getOrElse(Left(APIError("Счёт не найден!")))
       future = updatedAmount.map(amount =>
         db.run { query.update(amount) }
       ) match {
@@ -87,7 +87,7 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   override def withdrawFromAccount(
       id: UUID,
       withdrawalAmount: Int
-  ): Future[Either[String, ChangeAccountAmountResult]] = {
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = {
     val query = accountTable.filter(_.id === id).map(_.amount)
 
     for {
@@ -98,10 +98,10 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
             if (oldAmount >= withdrawalAmount)
               Right(oldAmount - withdrawalAmount)
             else
-              Left("Недостаточно средств!")
+              Left(APIError("Недостаточно средств!"))
           }
         }
-        .getOrElse(Left("Счёт не найден!"))
+        .getOrElse(Left(APIError("Счёт не найден!")))
       future = updatedAmount.map(amount =>
         db.run { query.update(amount) }
       ) match {
@@ -114,14 +114,58 @@ class AccountsRepositoryDB(implicit val ec: ExecutionContext, db: Database)
   }
 
   override def transferByAccountId(
-      accountId: UUID,
-      withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+      transfer: TransferByAccountId
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = {
+    val senderAccountQuery =
+      accountTable.filter(_.id === transfer.senderAccountId).map(_.amount)
+    val recipientAccountQuery =
+      accountTable.filter(_.id === transfer.recipientAccountId).map(_.amount)
+
+    for {
+      senderAccountOpt <- db.run(senderAccountQuery.result.headOption)
+      recipientAccountOpt <- db.run(recipientAccountQuery.result.headOption)
+      transferAmount = transfer.transferAmount
+      senderAmountUpd = senderAccountOpt
+        .map { senderAmount =>
+          {
+            if (senderAmount >= transferAmount)
+              Right(senderAmount - transferAmount)
+            else
+              Left(APIError("Недостаточно средств!"))
+          }
+        }
+        .getOrElse(Left(APIError("Счёт не найден!")))
+      recipientAmountUpd = recipientAccountOpt
+        .map { recipientAmount =>
+          {
+            Right(recipientAmount + transferAmount)
+          }
+        }
+        .getOrElse(Left(APIError("Счёт не найден!")))
+      senderFuture = senderAmountUpd.map(amount =>
+        db.run { senderAccountQuery.update(amount) }
+      ) match {
+        case Right(future) => {
+          recipientAmountUpd.map(amount =>
+            db.run { recipientAccountQuery.update(amount) }
+          ) match {
+            case Right(future) => future.map(Right(_))
+            case Left(s)       => Future.successful(Left(s))
+          }
+        }
+        case Left(s) => Future.successful(Left(s))
+      }
+      updated <- senderFuture
+      res <- findAccount(transfer.senderAccountId)
+    } yield updated.map(_ =>
+      ChangeAccountAmountResult(transfer.senderAccountId, res.get.amount)
+    )
+  }
 
   override def transferByPhone(
       phone: String,
-      withdrawalAmount: Int
-  ): Future[Option[ChangeAccountAmountResult]] = ???
+      transferAmount: Int
+  ): Future[Either[APIError, ChangeAccountAmountResult]] = ???
 
   def setUserPriorityAccount(
       priority: UserPriorityAccount

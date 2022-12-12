@@ -4,12 +4,12 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import money.db.InitDb
 import money.repository.AccountsRepositoryDB
 import money.route._
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 import slick.jdbc.PostgresProfile.api._
-import money.db.InitDb
 
 object MoneyDbApp extends App {
   implicit val system: ActorSystem = ActorSystem("MoneyApp")
@@ -19,6 +19,8 @@ object MoneyDbApp extends App {
   new InitDb().prepare()
   val repository = new AccountsRepositoryDB
   val accountsRoute = new AccountsRoute(repository).route
+  val transfersRoute = new TransfersRoute(repository).route
+  val cashRoute = new CashRoute(repository).route
   val helloRoute = new HelloRoute().route
 
   val bindingFuture =
@@ -27,6 +29,8 @@ object MoneyDbApp extends App {
       .bind(
         helloRoute
           ~ accountsRoute
+          ~ transfersRoute
+          ~ cashRoute
       )
 
   println(

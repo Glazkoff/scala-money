@@ -3,7 +3,13 @@ package money.model
 import java.util.UUID
 import java.time.LocalDateTime
 
-final case class Trnasfer(
+final case class TransferByAccountId(
+    senderAccountId: UUID,
+    recipientAccountId: UUID,
+    transferAmount: Int
+)
+
+final case class TransferHistory(
     id: UUID = UUID.randomUUID(),
     status: String,
     senderAccountId: UUID,
@@ -11,5 +17,5 @@ final case class Trnasfer(
     categoryId: Option[UUID],
     transferAmount: Int,
     cashbackAmount: Option[Int],
-    createdAt: LocalDateTime
+    createdAt: LocalDateTime = LocalDateTime.now()
 )
