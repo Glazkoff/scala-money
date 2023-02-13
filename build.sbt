@@ -14,28 +14,30 @@ val postgresVersion = "42.5.0"
 val logbackVersion = "1.2.3"
 
 lazy val root = (project in file("."))
-  .settings(
-    name := "scala-money",
-    Compile / run / mainClass := Some("money.MoneyDbApp"),
-    libraryDependencies ++= Seq(
-      // JSON
-      "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion,
-      "io.circe" %% "circe-parser" % circeVersion,
-      // HTTP / REST API
-      "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-      "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-      "de.heikoseeberger" %% "akka-http-circe" % akkaHttpJsonVersion,
-      // Работа с БД
-      "com.typesafe.slick" %% "slick" % slickVersion,
-      "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-      "org.postgresql" % "postgresql" % postgresVersion,
-      // Логирование
-      "ch.qos.logback" % "logback-classic" % logbackVersion,
-      // Тесты
-      scalaTest % Test
+    .settings(
+        name := "scala-money",
+        Compile / run / mainClass := Some("money.MoneyDbApp"),
+        libraryDependencies ++= Seq(
+            // JSON
+            "io.circe" %% "circe-core" % circeVersion,
+            "io.circe" %% "circe-generic" % circeVersion,
+            "io.circe" %% "circe-parser" % circeVersion,
+            // HTTP / REST API
+            "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+            "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+            "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+            "de.heikoseeberger" %% "akka-http-circe" % akkaHttpJsonVersion,
+            // Работа с БД
+            "com.typesafe.slick" %% "slick" % slickVersion,
+            "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
+            "org.postgresql" % "postgresql" % postgresVersion,
+            // Логирование
+            "ch.qos.logback" % "logback-classic" % logbackVersion,
+            // Тесты
+            scalaTest % Test
+        )
     )
-  )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+
+enablePlugins(JavaAppPackaging)

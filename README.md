@@ -66,3 +66,10 @@
 |  15 |     User      | Создать нового пользователя           |   ❔   | ❔  | ❔  |     ❔      |
 |  16 | CashOperation | История операций со счётом            |   ❔   | ❔  | ❔  |     ❔      |
 |  17 |   Transfer    | История переводов                     |   ❔   | ❔  | ❔  |     ❔      |
+
+### TODO:
+
+https://disk.yandex.ru/d/QtkQFa9q3HlfQA/Software%20Engineering%20(Scala)/2022-12-14.%20%D0%97%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D0%B5%2012/GMT20221214-145106_Recording_1920x1080%20(1).mp4
+43:33
+
+`docker compose -f .\docker\docker-compose.yml up --build`
