@@ -2,24 +2,39 @@ version: "3"
 
 volumes:
   postgres_data: {}
+  postgres_data_2: {}
   pgadmin_data: {}
 
 networks:
   postgres:
     driver: bridge
+  postgres2:
+    driver: bridge
 
 services:
   postgres:
-    container_name: scala-postgres
+    container_name: scala-postgres-service1
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    volumes:
+      - postgres_data_2:/var/lib/postgresql/data
+    env_file: .env
+    restart: unless-stopped
+    networks:
+      - postgres
+
+  postgres2:
+    container_name: scala-postgres-service2
+    image: postgres:15-alpine
+    ports:
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file: .env
     restart: unless-stopped
     networks:
-      - postgres
+      - postgres2
 
   pgadmin:
     container_name: scala-pgadmin
@@ -33,14 +48,26 @@ services:
     networks:
       - postgres
 
-  scala-money:
-    container_name: scala-money
-    image: scala-money
+  scala-money-service1:
+    container_name: scala-money-service1
+    image: scala-money-service1
     env_file: .env
     ports:
-      - "8080:8081"
+      - "8001:8081"
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.service1
     networks:
       - postgres
+
+  scala-money-service2:
+    container_name: scala-money-service2
+    image: scala-money-service2
+    env_file: .env
+    ports:
+      - "8002:8081"
+    build:
+      context: ./
+      dockerfile: Dockerfile.service2
+    networks:
+      - postgres2

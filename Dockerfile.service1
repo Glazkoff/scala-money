@@ -12,6 +12,7 @@ RUN apt-get install sbt
 
 WORKDIR /build
 COPY . .
+COPY ./service1/ .
 RUN sbt stage
 
 # 2. Образ запуска

@@ -8,14 +8,14 @@ import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 
 class HelloRoute extends FailFastCirceSupport {
-  def route = (path("hello") & get) {
-    {
-      complete(
-        HttpEntity(
-          ContentTypes.`text/html(UTF-8)`,
-          "<h1>Тестовый HTML-заголовок!</h1>"
-        )
-      )
+    def route = (path("hello") & get) {
+        {
+            complete(
+                HttpEntity(
+                    ContentTypes.`text/html(UTF-8)`,
+                    "<h1>Тестовый HTML-заголовок! - Сервис 2</h1>"
+                )
+            )
+        }
     }
-  }
 }
