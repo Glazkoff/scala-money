@@ -69,7 +69,4 @@
 
 ### TODO:
 
-https://disk.yandex.ru/d/QtkQFa9q3HlfQA/Software%20Engineering%20(Scala)/2022-12-14.%20%D0%97%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D0%B5%2012/GMT20221214-145106_Recording_1920x1080%20(1).mp4
-43:33
-
-`docker compose -f .\docker\docker-compose.yml up --build`
+https://disk.yandex.ru/d/i-xyQRbATGhA-Q/%D0%90%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D1%8B%D1%85%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC/2023-02-08.%20%D0%97%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D0%B5%201/GMT20230208-144555_Recording_1920x1080.mp4
