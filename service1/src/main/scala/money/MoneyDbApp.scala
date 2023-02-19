@@ -6,6 +6,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import money.db.InitDb
 import money.repository.AccountsRepositoryDB
+import money.repository.CategoriesRepositoryDB
 import money.route._
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
@@ -18,9 +19,11 @@ object MoneyDbApp extends App {
 
     new InitDb().prepare()
     val repository = new AccountsRepositoryDB
+    val categoriesRepository = new CategoriesRepositoryDB
     val accountsRoute = new AccountsRoute(repository).route
     val transfersRoute = new TransfersRoute(repository).route
     val cashRoute = new CashRoute(repository).route
+    val categoriesRoute = new CategoriesRoute(categoriesRepository).route
     val helloRoute = new HelloRoute().route
 
     val bindingFuture =
@@ -31,6 +34,7 @@ object MoneyDbApp extends App {
                     ~ accountsRoute
                     ~ transfersRoute
                     ~ cashRoute
+                    ~ categoriesRoute
             )
 
     println(

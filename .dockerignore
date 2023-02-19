@@ -8,3 +8,4 @@ target
 api.http
 erd.drawio
 .env.example
+./build.sbt

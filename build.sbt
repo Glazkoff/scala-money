@@ -1,5 +1,3 @@
-import Dependencies._
-
 ThisBuild / scalaVersion := "2.13.8"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "ru.misis"
@@ -13,31 +11,40 @@ val slickVersion = "3.4.1"
 val postgresVersion = "42.5.0"
 val logbackVersion = "1.2.3"
 
+val commonDependenciesSeq = Seq(
+    // JSON
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
+    // HTTP / REST API
+    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+    "de.heikoseeberger" %% "akka-http-circe" % akkaHttpJsonVersion,
+    // Работа с БД
+    "com.typesafe.slick" %% "slick" % slickVersion,
+    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
+    "org.postgresql" % "postgresql" % postgresVersion,
+    // Логирование
+    "ch.qos.logback" % "logback-classic" % logbackVersion
+)
+
 lazy val root = (project in file("."))
+    .aggregate(service1)
     .settings(
-        name := "scala-money",
-        Compile / run / mainClass := Some("money.MoneyDbApp"),
-        libraryDependencies ++= Seq(
-            // JSON
-            "io.circe" %% "circe-core" % circeVersion,
-            "io.circe" %% "circe-generic" % circeVersion,
-            "io.circe" %% "circe-parser" % circeVersion,
-            // HTTP / REST API
-            "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-            "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-            "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-            "de.heikoseeberger" %% "akka-http-circe" % akkaHttpJsonVersion,
-            // Работа с БД
-            "com.typesafe.slick" %% "slick" % slickVersion,
-            "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-            "org.postgresql" % "postgresql" % postgresVersion,
-            // Логирование
-            "ch.qos.logback" % "logback-classic" % logbackVersion,
-            // Тесты
-            scalaTest % Test
-        )
+        name := "scala-money"
     )
 
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+lazy val service1 = (project in file("service1"))
+    .settings(
+        name := "scala-money-1",
+        Compile / run / mainClass := Some("money.MoneyDbApp"),
+        libraryDependencies ++= commonDependenciesSeq
+    )
 
-enablePlugins(JavaAppPackaging)
+lazy val service2 = (project in file("service2"))
+    .settings(
+        name := "scala-money-2",
+        Compile / run / mainClass := Some("money.MoneyDbApp"),
+        libraryDependencies ++= commonDependenciesSeq
+    )
