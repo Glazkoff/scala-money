@@ -6,6 +6,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import money.db.InitDb
 import money.repository.CashbacksRepositoryDB
+import money.repository.PayCashbackClient
 import money.route._
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
@@ -17,7 +18,8 @@ object MoneyDbApp extends App {
     implicit val db = Database.forConfig("database.postgres")
 
     new InitDb().prepare()
-    val cashbacksRepository = new CashbacksRepositoryDB
+    val payCashbackClient = new PayCashbackClient
+    val cashbacksRepository = new CashbacksRepositoryDB(payCashbackClient)
     val cashbacksRoute = new CashbacksRoute(cashbacksRepository).route
     val helloRoute = new HelloRoute().route
 

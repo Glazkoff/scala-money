@@ -15,3 +15,5 @@ final case class CreateCashback(senderUserId: UUID, transferAmount: Int, cashbac
 final case class PayCashback(
     userId: UUID
 )
+final case class AccrualCashbackRequest(userId: UUID, amountChange: Int)
+final case class AccrualCashbackResponse(id: UUID, amount: Int)

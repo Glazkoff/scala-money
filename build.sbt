@@ -29,11 +29,11 @@ val commonDependenciesSeq = Seq(
     "ch.qos.logback" % "logback-classic" % logbackVersion
 )
 
-lazy val root = (project in file("."))
-    .aggregate(service1)
-    .settings(
-        name := "scala-money"
-    )
+// lazy val root = (project in file("."))
+//     .aggregate(service1, service2)
+//     .settings(
+//         name := "scala-money"
+//     )
 
 lazy val service1 = (project in file("service1"))
     .settings(

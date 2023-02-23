@@ -7,10 +7,13 @@ import akka.http.scaladsl.server.Directives._
 import money.db.InitDb
 import money.repository.AccountsRepositoryDB
 import money.repository.CategoriesRepositoryDB
+import money.repository.CashbackClient
 import money.route._
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 import slick.jdbc.PostgresProfile.api._
+import money.model.CashbackCreateRequest
+import java.util.UUID
 
 object MoneyDbApp extends App {
     implicit val system: ActorSystem = ActorSystem("MoneyApp")
@@ -18,7 +21,8 @@ object MoneyDbApp extends App {
     implicit val db = Database.forConfig("database.postgres")
 
     new InitDb().prepare()
-    val repository = new AccountsRepositoryDB
+    val cashbackClient = new CashbackClient
+    val repository = new AccountsRepositoryDB(cashbackClient)
     val categoriesRepository = new CategoriesRepositoryDB
     val accountsRoute = new AccountsRoute(repository).route
     val transfersRoute = new TransfersRoute(repository).route

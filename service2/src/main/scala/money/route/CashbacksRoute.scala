@@ -19,5 +19,21 @@ class CashbacksRoute(repository: CashbackRepository)(implicit
                 val list = repository.cashbacksList()
                 complete(list)
             }
-        }
+        } ~
+            (path("cashbacks") & post) {
+                entity(as[CreateCashback]) { newCashback =>
+                    complete(repository.createCashback(newCashback))
+                }
+            } ~ (path("cashbacks_pay") & post) {
+                entity(as[PayCashback]) { payCashbackBody =>
+                    onComplete(repository.payCashback(payCashbackBody.userId)) {
+                        case Success(accrualCashbackResponse) =>
+                            complete(StatusCodes.OK -> accrualCashbackResponse)
+                        case Failure(error) =>
+                            complete(
+                                StatusCodes.InternalServerError -> s"Unexpected error occurred: ${error.getMessage}"
+                            )
+                    }
+                }
+            }
 }

@@ -6,15 +6,15 @@ POST http://localhost:8001/accounts HTTP/1.1
 Content-Type: application/json
 
 {
-  "ownerUserId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86",
+  "ownerUserId": "db884ca2-eb63-4197-baab-e10185937676",
   "name": "test"
 }
 
 ###
-GET http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05
+GET http://localhost:8001/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05
 
 ###
-PUT http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
+PUT http://localhost:8001/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
 Content-Type: application/json
 
 {
@@ -22,25 +22,64 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8081/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
+DELETE http://localhost:8001/accounts/eaf37b10-423b-43da-a7d4-6e03d0afbb05 HTTP/1.1
 
 
 ### 
-POST http://localhost:8081/cash HTTP/1.1
+POST http://localhost:8001/cash HTTP/1.1
 Content-Type: application/json
 
 {
-  "accountId": "75e3652b-c0d1-46bb-b055-f28714f7b4fd",
+  "accountId": "e02d9504-144b-4d13-ad66-52b1e1f843b5",
   "amountChange": 10000,
   "opType": "TOP_UP"
 }
 
 ### 
-POST http://localhost:8081/transfer/by_account_id HTTP/1.1
+POST http://localhost:8001/transfer/by_account_id HTTP/1.1
 Content-Type: application/json
 
 {
-  "senderAccountId": "75e3652b-c0d1-46bb-b055-f28714f7b4fd",
-  "recipientAccountId": "12c4aaac-735b-4263-a381-7c788648870c",
-  "transferAmount": 10000
+  "senderAccountId": "e02d9504-144b-4d13-ad66-52b1e1f843b5",
+  "recipientAccountId": "799499ea-fc6b-4d38-8b20-6084883c424b",
+  "transferAmount":2000
+}
+
+###
+POST http://localhost:8002/cashbacks HTTP/1.1
+Content-Type: application/json
+
+{
+  "senderUserId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86",
+  "transferAmount": 1000,
+  "cashbackPercent": 0.1
+}
+
+### 
+GET http://localhost:8002/cashbacks HTTP/1.1
+
+###
+POST http://localhost:8001/accrual_cashback HTTP/1.1
+Content-Type: application/json
+
+{
+  "accountId": "e02d9504-144b-4d13-ad66-52b1e1f843b5",
+  "amountChange": 10000
+}
+
+###
+POST http://localhost:8001/accrual_cashback HTTP/1.1
+Content-Type: application/json
+
+{
+  "userId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86",
+  "amountChange": 10000
+}
+
+###
+POST http://localhost:8002/cashbacks_pay HTTP/1.1
+Content-Type: application/json
+
+{
+  "userId": "5ff683e6-2c39-4eff-86f4-f4908da8ea86"
 }
