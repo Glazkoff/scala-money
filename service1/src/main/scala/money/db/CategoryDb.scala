@@ -9,7 +9,7 @@ object CategoryDb {
 
         val id = column[UUID]("id", O.PrimaryKey)
         val name = column[String]("name")
-        val cashbackPercent = column[Int]("cashbackPercent")
+        val cashbackPercent = column[Double]("cashbackPercent")
 
         override def * = (
             id,

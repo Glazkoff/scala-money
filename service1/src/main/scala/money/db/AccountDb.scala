@@ -9,12 +9,14 @@ object AccountDb {
 
         val id = column[UUID]("id", O.PrimaryKey)
         val ownerUserId = column[UUID]("ownerUserId")
+        val categoryId = column[UUID]("categoryId")
         val amount = column[Int]("amount")
         val name = column[Option[String]]("name")
 
         override def * = (
             id,
             ownerUserId,
+            categoryId,
             amount,
             name
         ) <> ((Account.apply _).tupled, Account.unapply _)

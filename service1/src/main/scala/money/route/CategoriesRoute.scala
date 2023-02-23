@@ -19,5 +19,9 @@ class CategoriesRoute(repository: CategoriesRepository)(implicit
                 val list = repository.categoriesList()
                 complete(list)
             }
+        } ~ (path("categories") & post) {
+            entity(as[CreateCategory]) { newCategory =>
+                complete(repository.createCategory(newCategory))
+            }
         }
 }

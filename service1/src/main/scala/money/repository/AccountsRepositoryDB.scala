@@ -2,6 +2,7 @@ package money.repository
 
 import java.util.UUID
 import money.db.AccountDb._
+import money.db.CategoryDb._
 import money.model._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -38,7 +39,7 @@ class AccountsRepositoryDB(cashbackClient: CashbackClient)(implicit val ec: Exec
 
     override def createAccount(create: CreateAccount): Future[Account] = {
         val newAccount =
-            Account(ownerUserId = create.ownerUserId, name = create.name)
+            Account(ownerUserId = create.ownerUserId, name = create.name, categoryId = create.categoryId)
 
         for {
             _ <- db.run(accountTable += newAccount)
@@ -155,19 +156,15 @@ class AccountsRepositoryDB(cashbackClient: CashbackClient)(implicit val ec: Exec
             transferAmount = transfer.transferAmount
             senderAmountUpd = senderAccountOpt
                 .map { senderAccount =>
-                    {
-                        if (senderAccount.amount >= transferAmount)
-                            Right(senderAccount.amount - transferAmount)
-                        else
-                            Left(APIError("Недостаточно средств!"))
-                    }
+                    if (senderAccount.amount >= transferAmount)
+                        Right(senderAccount.amount - transferAmount)
+                    else
+                        Left(APIError("Недостаточно средств!"))
                 }
                 .getOrElse(Left(APIError("Счёт не найден!")))
             recipientAmountUpd = recipientAccountOpt
                 .map { recipientAccount =>
-                    {
-                        Right(recipientAccount.amount + transferAmount)
-                    }
+                    Right(recipientAccount.amount + transferAmount)
                 }
                 .getOrElse(Left(APIError("Счёт не найден!")))
             senderFuture = senderAmountUpd.map(amount =>
@@ -184,10 +181,26 @@ class AccountsRepositoryDB(cashbackClient: CashbackClient)(implicit val ec: Exec
                 case Left(s) => Future.successful(Left(s))
             }
             updated <- senderFuture
+            maybeRecipientAccount <- findAccount(transfer.recipientAccountId)
+            maybeCategory <- maybeRecipientAccount
+                .map(account =>
+                    db.run(
+                        categoryTable
+                            .filter(_.id === account.categoryId)
+                            .result
+                            .headOption
+                    )
+                )
+                .getOrElse(Future.successful(None))
+            cashbackPercent <- Future.successful(maybeCategory.map(_.cashbackPercent).getOrElse(0.0))
             response <-
-                if (senderAccountOpt.exists(_.ownerUserId != recipientAccountOpt.map(_.ownerUserId).getOrElse(-1L))) {
+                if (
+                    senderAccountOpt.exists(
+                        _.ownerUserId != recipientAccountOpt.map(_.ownerUserId).getOrElse(-1L)
+                    ) && cashbackPercent != 0.0
+                ) {
                     cashbackClient.createCashback(
-                        CashbackCreateRequest(senderAccountOpt.map(_.ownerUserId).get, transferAmount, 0.9)
+                        CashbackCreateRequest(senderAccountOpt.map(_.ownerUserId).get, transferAmount, cashbackPercent)
                     )
                 } else {
                     Future.successful(())
