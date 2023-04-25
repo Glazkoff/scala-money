@@ -57,5 +57,4 @@ jitwatch.out
 project/**/metals.sbt
 
 null
-.env
 PowerShell 7.2.9
