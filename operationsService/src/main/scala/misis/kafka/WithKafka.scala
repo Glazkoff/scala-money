@@ -32,24 +32,24 @@ trait WithKafka {
         .committableSource(consumerSettings, Subscriptions.topics(topicName.get))
         .map(message => message.record.value())
         .map(body => decode[T](body))
+        .log(s"Error while reading topic ${topicName.get}")
         .collect {
             case Right(command) =>
                 command
-            case Left(error) => throw new RuntimeException(s"Ошибка при разборе сообщения $error")
+            case Left(error) => throw new RuntimeException(s"Error while message parsing $error")
         }
-        .log(s"Случилась ошибка при чтении топика ${topicName.get}")
 
     def kafkaSink[T](implicit encoder: Encoder[T], topicName: TopicName[T]) = Flow[T]
         .map(event => event.asJson.noSpaces)
         .map(value => new ProducerRecord[String, String](topicName.get, value))
-        .log(s"Случилась ошибка при обработке сообщения из топика ${topicName.get}")
+        .log(s"Error on message handling of topic ${topicName.get}")
         .to(Producer.plainSink(producerSettings))
 
     def produceCommand[T](command: T)(implicit encoder: Encoder[T], topicName: TopicName[T]) = {
         Source
             .single(command)
             .map { command =>
-                println(s"Отправляется  сообщение $command в топик ${topicName.get}")
+                println(s"Send message $command to topic ${topicName.get}")
                 command.asJson.noSpaces
             }
             .map { value =>

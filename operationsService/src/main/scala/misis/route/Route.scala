@@ -6,7 +6,9 @@ import io.circe.generic.auto._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import misis.kafka.TopicName
 import misis.kafka.Streams
-import misis.model.{AccountUpdate, TransferStart}
+import misis.model.{AccountUpdate}
+import misis.model.TransferStart
+
 import misis.repository.Repository
 
 import scala.concurrent.ExecutionContext
@@ -25,7 +27,7 @@ class Route(streams: Streams, repository: Repository)(implicit ec: ExecutionCont
                 complete(command)
             }) ~
             (path("transfer") & post & entity(as[TransferStart])) { transfer =>
-                repository.transfer(transfer)
+                repository.startTransfer(transfer)
                 complete(transfer)
             }
 }
