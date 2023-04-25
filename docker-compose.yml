@@ -5,10 +5,6 @@ volumes:
   postgres_data_2: {}
   pgadmin_data: {}
 
-networks:
-  app:
-    driver: bridge
-
 services:
   postgres:
     container_name: scala-postgres-service1
@@ -19,8 +15,6 @@ services:
       - postgres_data_2:/var/lib/postgresql/data
     env_file: .env
     restart: unless-stopped
-    networks:
-      - app
 
   postgres2:
     container_name: scala-postgres-service2
@@ -31,8 +25,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file: .env
     restart: unless-stopped
-    networks:
-      - app
 
   pgadmin:
     container_name: scala-pgadmin
@@ -43,29 +35,52 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     restart: unless-stopped
-    networks:
-      - app
 
-  scala-money-service1:
-    container_name: scala-money-service1
-    image: scala-money-service1
+  scala-accounts-service1:
+    container_name: scala-accounts-service1
+    image: scala-accounts-service1
     env_file: .env
     ports:
       - "8001:8081"
     build:
       context: ./
-      dockerfile: Dockerfile.service1
-    networks:
-      - app
+      dockerfile: Dockerfile.accountsService
 
-  scala-money-service2:
-    container_name: scala-money-service2
-    image: scala-money-service2
-    env_file: .env
+  scala-accounts-service2:
+    container_name: scala-accounts-service2
+    image: scala-accounts-service2
+    env_file: .env2
     ports:
       - "8002:8081"
     build:
       context: ./
-      dockerfile: Dockerfile.service2
-    networks:
-      - app
+      dockerfile: Dockerfile.accountsService
+
+  scala-operations-service1:
+    container_name: scala-operations-service1
+    image: scala-operations-service1
+    env_file: .env
+    ports:
+      - "8010:8081"
+    build:
+      context: ./
+      dockerfile: Dockerfile.operationsService
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - 9094:9094
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OPTS: -Xms128m -Xmx256m
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://127.0.0.1:9094
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_ADVERTISED_HOSTNAME: INSIDE
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE

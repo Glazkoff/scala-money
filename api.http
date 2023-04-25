@@ -87,3 +87,17 @@ Content-Type: application/json
   "name": "Категория 2",
   "cashbackPercent": 0.4
 }
+
+###
+POST http://localhost:8010/update/1/100 HTTP/1.1
+Content-Type: application/json
+
+###
+POST http://localhost:8010/transfer HTTP/1.1
+Content-Type: application/json
+
+{
+  "sourceId": 2, 
+  "destinationId": 1, 
+  "value": 100
+}
