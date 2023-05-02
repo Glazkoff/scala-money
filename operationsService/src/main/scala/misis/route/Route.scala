@@ -7,10 +7,8 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import misis.kafka.TopicName
 import misis.kafka.Streams
 import misis.model.{AccountUpdate}
-import misis.model.TransferStart
-
+import misis.model._
 import misis.repository.Repository
-
 import scala.concurrent.ExecutionContext
 
 class Route(streams: Streams, repository: Repository)(implicit ec: ExecutionContext) extends FailFastCirceSupport {
@@ -29,5 +27,14 @@ class Route(streams: Streams, repository: Repository)(implicit ec: ExecutionCont
             (path("transfer") & post & entity(as[TransferStart])) { transfer =>
                 repository.startTransfer(transfer)
                 complete(transfer)
+            } ~
+            (path("account") & post & entity(as[CreateAccount])) { createAccount =>
+                repository.createAccount(createAccount)
+                complete(createAccount)
+            } ~
+            (path("account" / IntNumber) & get) { accountId =>
+                val command = ShowAccountBalance(accountId)
+                repository.showAccountBalance(command)
+                complete(command)
             }
 }

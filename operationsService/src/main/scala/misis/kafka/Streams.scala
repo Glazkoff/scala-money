@@ -17,7 +17,9 @@ class Streams()(implicit val system: ActorSystem, executionContext: ExecutionCon
     // TO BE
     kafkaSource[AccountFromAck]
         .map { e =>
-            println(s"Ask for existence of account ${e.sourceId}")
+            println(
+                s"(5) Got AccountFromAck and send TransferCheckDestination - Ask for existence of account ${e.sourceId}"
+            )
             TransferCheckDestination(e.sourceId, e.destinationId, e.value)
         }
         .to(kafkaSink)

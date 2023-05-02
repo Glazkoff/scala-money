@@ -27,8 +27,8 @@ object AkkaKafkaDemo extends App {
     private val repository = new Repository(streams)
     val mainRoute = new Route(streams, repository).route
 
-    implicit val commandTopicName = streams.simpleTopicName[AccountUpdate]
-    streams.produceCommand(AccountUpdate(0, 100))
+    // implicit val commandTopicName = streams.simpleTopicName[AccountUpdate]
+    // streams.produceCommand(AccountUpdate(0, 100))
 
     val bindingFuture =
         Http()
