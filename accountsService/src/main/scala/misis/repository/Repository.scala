@@ -21,7 +21,7 @@ class Repository() {
     }
 
     def accountExistsWithIdAndAmount(accountId: Int, amount: Int): Boolean = {
-        accounts.get(accountId).exists(_.amount >= amount)
+        accounts.get(accountId).exists(_.amount + amount >= 0)
     }
 
     def getAccount(accountId: Int): Future[Option[Account]] = {
@@ -38,9 +38,13 @@ class Repository() {
     def updateAccount(id: Int, value: Int): Future[Unit] = {
         accounts.get(id) match {
             case Some(account) =>
-                val updatedAccount = account.update(value)
-                accounts += (id -> updatedAccount)
-                Future.successful(())
+                if (accounts.get(id).exists(_.amount + value >= 0)) {
+                    val updatedAccount = account.update(value)
+                    accounts += (id -> updatedAccount)
+                    Future.successful(())
+                } else {
+                    Future.failed(new IllegalArgumentException(s"Account $id does not have enough money"))
+                }
             case None =>
                 Future.failed(new IllegalArgumentException(s"Account $id does not exist"))
         }

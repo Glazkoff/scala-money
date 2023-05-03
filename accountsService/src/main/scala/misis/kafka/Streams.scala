@@ -17,6 +17,7 @@ import misis.model._
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
 import com.typesafe.config.ConfigFactory
+import scala.concurrent.Future
 
 class Streams(repository: Repository, groupId: Int)(implicit
     val system: ActorSystem,
@@ -75,14 +76,41 @@ class Streams(repository: Repository, groupId: Int)(implicit
         .map(event => {
             println(s"(10) NEED TO UPDATE ACCOUNT #${event.accountId} WITH AMOUNT ${event.value}")
             println(s"(10.5) ACCOUNT #${event.accountId} EXISTS: ${repository.accountExists(event.accountId)}")
+            println(
+                s"(10.6) ACCOUNT #${event.accountId} EXISTS WITH AMOUNT: ${repository
+                        .accountExistsWithIdAndAmount(event.accountId, event.value)}"
+            )
             event
         })
-        .filter(command => repository.accountExists(command.accountId))
+        .filter(event => repository.accountExists(event.accountId))
         .mapAsync(1) { command =>
+            // Старый и рабочий вариант
             repository
                 .updateAccount(command.accountId, command.value)
                 .map(_ => AccountUpdated(command.accountId, command.value))
+
+            // Тоже рабочий вариант
+            // Future.successful(AccountUpdate(command.cancelAccountId.getOrElse(0), command.value))
+
+            // TODO: SEND CANCELLATION AccountUpdate(command.cancelAccountId.getOrElse(0), command.value)
+            // Этот вариант не работает :(
+            // ---
+            // Если существует счёт "откуда" с нужным количеством денег
+            // if (
+            //     repository
+            //         .accountExistsWithIdAndAmount(command.accountId, command.value)
+            // ) {
+            // производим списание / начисление
+            //     repository
+            //         .updateAccount(command.accountId, command.value)
+            //         .map(_ => AccountUpdated(command.accountId, command.value))
+            // } else {
+            // иначе производим отмену начисления на счёт "куда"
+            //     Future.successful(AccountUpdate(command.cancelAccountId.getOrElse(0), command.value))
+            // }
         }
+        // Здесь выводит ошибку:
+        // could not find implicit value for parameter encoder: io.circe.Encoder[Product with java.io.Serializable]
         .to(kafkaSink)
         .run()
 
