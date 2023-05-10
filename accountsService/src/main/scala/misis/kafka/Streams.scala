@@ -84,33 +84,10 @@ class Streams(repository: Repository, groupId: Int)(implicit
         })
         .filter(event => repository.accountExists(event.accountId))
         .mapAsync(1) { command =>
-            // Старый и рабочий вариант
             repository
                 .updateAccount(command.accountId, command.value)
-                .map(_ => AccountUpdated(command.accountId, command.value))
-
-            // Тоже рабочий вариант
-            // Future.successful(AccountUpdate(command.cancelAccountId.getOrElse(0), command.value))
-
-            // TODO: SEND CANCELLATION AccountUpdate(command.cancelAccountId.getOrElse(0), command.value)
-            // Этот вариант не работает :(
-            // ---
-            // Если существует счёт "откуда" с нужным количеством денег
-            // if (
-            //     repository
-            //         .accountExistsWithIdAndAmount(command.accountId, command.value)
-            // ) {
-            // производим списание / начисление
-            //     repository
-            //         .updateAccount(command.accountId, command.value)
-            //         .map(_ => AccountUpdated(command.accountId, command.value))
-            // } else {
-            // иначе производим отмену начисления на счёт "куда"
-            //     Future.successful(AccountUpdate(command.cancelAccountId.getOrElse(0), command.value))
-            // }
+                .map(_ => AccountUpdated(command.accountId, command.value, command.nextAccountId))
         }
-        // Здесь выводит ошибку:
-        // could not find implicit value for parameter encoder: io.circe.Encoder[Product with java.io.Serializable]
         .to(kafkaSink)
         .run()
 

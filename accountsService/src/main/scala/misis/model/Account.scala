@@ -10,9 +10,9 @@ case class CreateAccount(initialAmount: Int) extends Command
 case class AccountUpdate(
     accountId: Int,
     value: Int,
-    cancelAccountId: Option[Int] = None
+    nextAccountId: Option[Int] = None
 ) extends Command
 
 trait Event
 case class AccountCreated(accountId: Int, amount: Int) extends Event
-case class AccountUpdated(accountId: Int, value: Int) extends Event
+case class AccountUpdated(accountId: Int, value: Int, nextAccountId: Option[Int] = None) extends Event

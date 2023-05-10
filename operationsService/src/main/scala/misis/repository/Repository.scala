@@ -29,7 +29,7 @@ class Repository(streams: Streams) {
         }
     }
 
-    def completeTransfer(transfer: AccountToAck) = {
+    def continueTransfer(transfer: AccountToAck) = {
         if (transfer.value > 0) {
             implicit val commandTopicName: TopicName[AccountUpdate] = streams.simpleTopicName[AccountUpdate]
 
@@ -37,4 +37,5 @@ class Repository(streams: Streams) {
             streams.produceCommand(AccountUpdate(transfer.destinationId, transfer.value, Some(transfer.sourceId)))
         }
     }
+
 }
