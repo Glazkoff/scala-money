@@ -89,7 +89,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8010/update/1/300 HTTP/1.1
+POST http://localhost:8010/update/5/300 HTTP/1.1
 Content-Type: application/json
 ###
 POST http://localhost:8010/update/2/1000 HTTP/1.1
@@ -100,9 +100,9 @@ POST http://localhost:8010/transfer HTTP/1.1
 Content-Type: application/json
 
 {
-  "sourceId": 1, 
-  "destinationId": 2, 
-  "value": 100
+  "sourceId": 4, 
+  "destinationId": 5, 
+  "value": 200
 }
 
 ###

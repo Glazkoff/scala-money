@@ -1,0 +1,39 @@
+@startuml flow
+Пользователь --> Operations: POST запрос на создание счёта
+Operations -> Accounts: [CreateAccount] Создание счёта
+Accounts -> Operations: [AccountCreated] Счёт создан
+
+Пользователь --> Operations: POST запрос на перевод
+Operations -> Accounts: [TransferStart] Проверить наличие счёта "откуда"
+Accounts --> Accounts: repository.AccountExists
+Accounts -> Operations: [AccountFromAck] Подтверждение наличия счёта "откуда"
+Operations -> Accounts: [TransferCheckDestination] Проверить наличие счёта "куда"
+Accounts --> Accounts: repository.AccountExists
+Accounts -> Fees: [AccountToAck] Подтверждение наличия счёта "куда"
+
+Fees --> Fees: repository.CheckLimits
+Fees -> Accounts: (amount + fees + nextId)\n[AccountUpdate] Списание (с комиссией)
+Accounts --> Accounts: repository.AccountExistsWithAmount
+Accounts --> Accounts: repository.UpdateAccount
+Accounts -> Fees: [AccountUpdated] Завершено списание
+
+Fees --> Fees: repository.UpdateLimits
+Fees -> Accounts: [AccountUpdate] Начисление на счёт банка
+
+Accounts -> Operations: [AccountUpdated] Завершено списание
+Operations -> Accounts: [AccountUpdate] Начисление
+Accounts --> Accounts: repository.AccountExistsWithAmount
+Accounts --> Accounts: repository.UpdateAccount
+Accounts -> Operations: [AccountUpdated] Завершено начисление
+
+Accounts -> Cashbacks: [AccountUpdated] Завершено начисление
+Cashbacks --> Cashbacks: repository.UpdateCashbackAmount
+
+Пользователь --> Operations: POST запрос на возврат кэшбека
+Operations -> Cashbacks: [ReturnCashback] Возврат кэшбека
+Cashbacks --> Cashbacks: repository.UpdateCashbackAmount
+Cashbacks -> Accounts: [AccountUpdate] Начисление кэшбека
+Accounts --> Accounts: repository.AccountExistsWithAmount
+Accounts --> Accounts: repository.UpdateAccount
+Accounts -> Operations: [AccountUpdated] Завершено начисление кэшбека
+@enduml

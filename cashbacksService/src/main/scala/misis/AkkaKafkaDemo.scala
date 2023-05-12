@@ -19,24 +19,21 @@ import io.circe.syntax._
 object AkkaKafkaDemo extends App {
     implicit val system: ActorSystem = ActorSystem("App")
     implicit val ec: ExecutionContext = system.dispatcher
-    implicit val db = Database.forConfig("database.postgres")
 
     val helloRoute = new HelloRoute().route
 
     private val streams = new Streams()
     private val repository = new Repository(streams)
-    val mainRoute = new Route(streams, repository).route
 
     val bindingFuture =
         Http()
             .newServerAt("0.0.0.0", 8081)
             .bind(
                 helloRoute
-                    ~ mainRoute
             )
 
     println(
-        s"Operations service started.\nPress RETURN to stop..."
+        s"Cashbacks service started.\nPress RETURN to stop..."
     )
     StdIn.readLine()
 }

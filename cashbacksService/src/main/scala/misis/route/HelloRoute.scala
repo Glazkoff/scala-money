@@ -13,7 +13,7 @@ class HelloRoute extends FailFastCirceSupport {
             complete(
                 HttpEntity(
                     ContentTypes.`text/html(UTF-8)`,
-                    "<h1>Сервис Счетов запущен</h1>"
+                    "<h1>Сервис Кэшбека запущен</h1>"
                 )
             )
         }

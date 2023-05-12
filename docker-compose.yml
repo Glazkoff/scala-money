@@ -34,6 +34,26 @@ services:
       context: ./
       dockerfile: Dockerfile.operationsService
 
+  scala-fees-service1:
+    container_name: scala-fees-service1
+    image: scala-fees-service1
+    env_file: .env
+    ports:
+      - "8011:8081"
+    build:
+      context: ./
+      dockerfile: Dockerfile.feesService
+
+  scala-cashbacks-service1:
+    container_name: scala-cashbacks-service1
+    image: scala-cashbacks-service1
+    env_file: .env
+    ports:
+      - "8012:8081"
+    build:
+      context: ./
+      dockerfile: Dockerfile.cashbacksService
+
   zookeeper:
     image: wurstmeister/zookeeper
     ports:

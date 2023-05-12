@@ -22,4 +22,4 @@ WORKDIR /app
 COPY --from=builder /build/target/universal/stage/bin bin
 COPY --from=builder /build/target/universal/stage/lib lib
 
-ENTRYPOINT sleep 2 && bin/scala-money-kafka-1
+ENTRYPOINT sleep 2 && bin/scala-money-operations
