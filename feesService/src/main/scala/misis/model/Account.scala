@@ -1,19 +1,17 @@
 package misis.model
 
-import java.util.UUID
-
-case class Account(id: Int, amount: Int) {
-    def update(value: Int) = this.copy(amount = amount + value)
+case class AccountFreeLimit(accountId: Int, freeLimit: Int) {
+    def updateFreeLimit(value: Int) = this.copy(freeLimit = freeLimit - value)
 }
 
 trait Command
-case class ShowAccountBalance(accountId: Int) extends Command
-case class CreateAccount(initialAmount: Int) extends Command
 case class AccountUpdate(
     accountId: Int,
     value: Int,
+    feeValue: Int = 0,
     nextAccountId: Option[Int] = None
 ) extends Command
 
 trait Event
-case class AccountUpdated(accountId: Int, value: Int, nextAccountId: Option[Int] = None) extends Event
+case class AccountUpdated(accountId: Int, value: Int, feeValue: Int = 0, nextAccountId: Option[Int] = None)
+    extends Event

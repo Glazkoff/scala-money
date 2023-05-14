@@ -33,8 +33,8 @@ class Repository(streams: Streams) {
         if (transfer.value > 0) {
             implicit val commandTopicName: TopicName[AccountUpdate] = streams.simpleTopicName[AccountUpdate]
 
-            streams.produceCommand(AccountUpdate(transfer.sourceId, -transfer.value, Some(transfer.destinationId)))
-            streams.produceCommand(AccountUpdate(transfer.destinationId, transfer.value, Some(transfer.sourceId)))
+            streams.produceCommand(AccountUpdate(transfer.sourceId, -transfer.value, 0, Some(transfer.destinationId)))
+            streams.produceCommand(AccountUpdate(transfer.destinationId, transfer.value, 0, Some(transfer.sourceId)))
         }
     }
 

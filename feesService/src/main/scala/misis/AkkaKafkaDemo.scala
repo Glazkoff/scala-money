@@ -21,9 +21,11 @@ object AkkaKafkaDemo extends App {
     implicit val ec: ExecutionContext = system.dispatcher
 
     val helloRoute = new HelloRoute().route
+    val limit = 1000
+    val feePercent = 20
 
-    private val streams = new Streams()
-    private val repository = new Repository(streams)
+    private val repository = new Repository(limit)
+    private val streams = new Streams(repository, feePercent)
 
     val bindingFuture =
         Http()

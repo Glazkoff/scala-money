@@ -10,7 +10,8 @@ import scala.io.StdIn
 import akka.http.scaladsl.Http
 import misis.repository.Repository
 import misis.kafka.Streams
-import misis.model.AccountUpdate
+import misis.model._
+import misis.kafka.TopicName
 import akka.http.scaladsl.server.Directives._
 import io.circe.generic.auto._
 import io.circe.parser._
@@ -24,6 +25,9 @@ object AkkaKafkaDemo extends App {
     val helloRoute = new HelloRoute().route
 
     private val streams = new Streams()
+    implicit val commandTopicName: TopicName[CreateBankAccount] = streams.simpleTopicName[CreateBankAccount]
+    streams.produceCommand(CreateBankAccount(0))
+
     private val repository = new Repository(streams)
     val mainRoute = new Route(streams, repository).route
 

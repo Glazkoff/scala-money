@@ -28,6 +28,13 @@ class Repository() {
         Future.successful(accounts.get(accountId))
     }
 
+    def createBankAccount(initialAmount: Int = 0): Future[Account] = {
+        val bankId = 0
+        val bankAccount = Account(bankId, initialAmount)
+        accounts += (bankId -> bankAccount)
+        Future.successful(bankAccount)
+    }
+
     def createAccount(initialAmount: Int = 0): Future[Account] = {
         val newId = getNextId()
         val account = Account(newId, initialAmount)

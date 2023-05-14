@@ -34,4 +34,13 @@ class CommonStreams(repository: Repository, groupId: Int)(implicit
         }
         .to(kafkaSink)
         .run()
+
+    kafkaSource[CreateBankAccount]
+        .mapAsync(1) { command =>
+            repository
+                .createBankAccount(command.initialAmount)
+                .map(account => AccountCreated(account.id, account.amount))
+        }
+        .to(kafkaSink)
+        .run()
 }

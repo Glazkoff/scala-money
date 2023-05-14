@@ -73,20 +73,21 @@ class Streams(repository: Repository, groupId: Int)(implicit
         .run()
 
     kafkaSource[AccountUpdate]
-        .map(event => {
-            println(s"(10) NEED TO UPDATE ACCOUNT #${event.accountId} WITH AMOUNT ${event.value}")
-            println(s"(10.5) ACCOUNT #${event.accountId} EXISTS: ${repository.accountExists(event.accountId)}")
+        .map(command => {
+            println(s"(10) NEED TO UPDATE ACCOUNT #${command.accountId} WITH AMOUNT ${command.value}")
+            println(s"(10.5) ACCOUNT #${command.accountId} EXISTS: ${repository.accountExists(command.accountId)}")
             println(
-                s"(10.6) ACCOUNT #${event.accountId} EXISTS WITH AMOUNT: ${repository
-                        .accountExistsWithIdAndAmount(event.accountId, event.value)}"
+                s"(10.6) ACCOUNT #${command.accountId} EXISTS WITH AMOUNT: ${repository
+                        .accountExistsWithIdAndAmount(command.accountId, command.value)}"
             )
-            event
+            println(s"FEE VALUE:  ${command.feeValue}")
+            command
         })
-        .filter(event => repository.accountExists(event.accountId))
+        .filter(command => repository.accountExistsWithIdAndAmount(command.accountId, command.value + command.feeValue))
         .mapAsync(1) { command =>
             repository
-                .updateAccount(command.accountId, command.value)
-                .map(_ => AccountUpdated(command.accountId, command.value, command.nextAccountId))
+                .updateAccount(command.accountId, command.value + command.feeValue)
+                .map(_ => AccountUpdated(command.accountId, command.value, command.feeValue, command.nextAccountId))
         }
         .to(kafkaSink)
         .run()
@@ -105,7 +106,11 @@ class Streams(repository: Repository, groupId: Int)(implicit
         .mapAsync(1) { event =>
             repository.getAccount(event.accountId).map {
                 case Some(account) =>
-                    println(s"Account ${event.accountId} was updated on ${event.value}. Balance: ${account.amount}")
+                    if (event.accountId == 0) {
+                        println(s"BANK ACCOUNT was updated on ${event.value}. Bank balance: ${account.amount}")
+                    } else {
+                        println(s"Account ${event.accountId} was updated on ${event.value}. Balance: ${account.amount}")
+                    }
                     event
                 case None => event
             }

@@ -5,35 +5,35 @@ Accounts -> Operations: [AccountCreated] Счёт создан
 
 Пользователь --> Operations: POST запрос на перевод
 Operations -> Accounts: [TransferStart] Проверить наличие счёта "откуда"
-Accounts --> Accounts: repository.AccountExists
+Accounts --> Accounts: repository.accountExists
 Accounts -> Operations: [AccountFromAck] Подтверждение наличия счёта "откуда"
 Operations -> Accounts: [TransferCheckDestination] Проверить наличие счёта "куда"
-Accounts --> Accounts: repository.AccountExists
+Accounts --> Accounts: repository.accountExists
 Accounts -> Fees: [AccountToAck] Подтверждение наличия счёта "куда"
 
-Fees --> Fees: repository.CheckLimits
+Fees --> Fees: repository.isFreeLimitOver
 Fees -> Accounts: (amount + fees + nextId)\n[AccountUpdate] Списание (с комиссией)
-Accounts --> Accounts: repository.AccountExistsWithAmount
-Accounts --> Accounts: repository.UpdateAccount
+Accounts --> Accounts: repository.accountExistsWithIdAndAmount
+Accounts --> Accounts: repository.updateAccount
 Accounts -> Fees: [AccountUpdated] Завершено списание
 
-Fees --> Fees: repository.UpdateLimits
+Fees --> Fees: repository.updateFreeLimit
 Fees -> Accounts: [AccountUpdate] Начисление на счёт банка
 
 Accounts -> Operations: [AccountUpdated] Завершено списание
 Operations -> Accounts: [AccountUpdate] Начисление
-Accounts --> Accounts: repository.AccountExistsWithAmount
-Accounts --> Accounts: repository.UpdateAccount
+Accounts --> Accounts: repository.accountExistsWithIdAndAmount
+Accounts --> Accounts: repository.updateAccount
 Accounts -> Operations: [AccountUpdated] Завершено начисление
 
 Accounts -> Cashbacks: [AccountUpdated] Завершено начисление
-Cashbacks --> Cashbacks: repository.UpdateCashbackAmount
+Cashbacks --> Cashbacks: repository.updateCashbackAmount
 
 Пользователь --> Operations: POST запрос на возврат кэшбека
 Operations -> Cashbacks: [ReturnCashback] Возврат кэшбека
-Cashbacks --> Cashbacks: repository.UpdateCashbackAmount
+Cashbacks --> Cashbacks: repository.updateCashbackAmount
 Cashbacks -> Accounts: [AccountUpdate] Начисление кэшбека
-Accounts --> Accounts: repository.AccountExistsWithAmount
-Accounts --> Accounts: repository.UpdateAccount
+Accounts --> Accounts: repository.accountExistsWithIdAndAmount
+Accounts --> Accounts: repository.updateAccount
 Accounts -> Operations: [AccountUpdated] Завершено начисление кэшбека
 @enduml
