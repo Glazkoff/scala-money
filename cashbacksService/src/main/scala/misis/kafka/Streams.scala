@@ -57,14 +57,14 @@ class Streams(repository: Repository)(implicit val system: ActorSystem, executio
         .run()
 
     kafkaSource[ReturnCashback]
-        .mapAsync(1) { event =>
-            repository.getAccountCashback(event.accountId).map {
+        .mapAsync(1) { command =>
+            repository.getAccountCashback(command.accountId).map {
                 case Some(accountCashback) =>
                     println(
-                        s"SHOULD RETURN CASHBACK FOR ACCOUNT ${event.accountId}. STORED CASHBACK: ${accountCashback.cashback}"
+                        s"SHOULD RETURN CASHBACK FOR ACCOUNT ${command.accountId}. STORED CASHBACK: ${accountCashback.cashback}"
                     )
-                    repository.resetCashback(event.accountId)
-                    AccountUpdate(event.accountId, accountCashback.cashback, 0, None, None)
+                    repository.resetCashback(command.accountId)
+                    AccountUpdate(command.accountId, accountCashback.cashback, 0, None, None)
                 case None =>
                     AccountUpdate(-1, 0, 0, None, None)
             }

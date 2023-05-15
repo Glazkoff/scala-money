@@ -26,48 +26,48 @@ class Streams(repository: Repository, groupId: Int)(implicit
     def group = s"account-test-${groupId}"
 
     kafkaSource[ShowAccountBalance]
-        .mapAsync(1) { event =>
-            repository.getAccount(event.accountId).map {
+        .mapAsync(1) { command =>
+            repository.getAccount(command.accountId).map {
                 case Some(account) =>
-                    println(s"Account ${event.accountId} has balance: ${account.amount}")
-                    event
+                    println(s"Account ${command.accountId} has balance: ${account.amount}")
+                    command
                 case None =>
                     println(
-                        s"Account ${event.accountId} didn't found. Available accounts: ${repository.getAccountKeys()}"
+                        s"Account ${command.accountId} didn't found. Available accounts: ${repository.getAccountKeys()}"
                     )
-                    event
+                    command
             }
         }
         .to(Sink.ignore)
         .run()
 
     kafkaSource[TransferStart]
-        .map(event => {
+        .map(command => {
             println("(2) Got TransferStart message")
-            event
+            command
         })
-        .filter(event => repository.accountExists(event.sourceId))
-        .map { e =>
-            println(s"(4) Send AccountFromAck - [SOURCE ACK] Account ${e.sourceId} exists and has enough money")
-            AccountFromAck(e.sourceId, e.destinationId, e.value)
+        .filter(command => repository.accountExists(command.sourceId))
+        .map { command =>
+            println(s"(4) Send AccountFromAck - [SOURCE ACK] Account ${command.sourceId} exists and has enough money")
+            AccountFromAck(command.sourceId, command.destinationId, command.value)
         }
         .to(kafkaSink)
         .run()
 
     kafkaSource[TransferCheckDestination]
-        .map(event => {
+        .map(command => {
             println("(6) Got TransferCheckDestination message")
-            event
+            command
         })
-        .filter(event => {
+        .filter(command => {
             println(
-                s"(6.5) repository.accountExists(event.destinationId) ${repository.accountExists(event.destinationId)}"
+                s"(6.5) repository.accountExists(command.destinationId) ${repository.accountExists(command.destinationId)}"
             )
-            repository.accountExists(event.destinationId)
+            repository.accountExists(command.destinationId)
         })
-        .map { e =>
-            println(s"(8) Send AccountToAck - [DESTINATION ACK] Account ${e.destinationId} exists ")
-            AccountToAck(e.sourceId, e.destinationId, e.value)
+        .map { command =>
+            println(s"(8) Send AccountToAck - [DESTINATION ACK] Account ${command.destinationId} exists ")
+            AccountToAck(command.sourceId, command.destinationId, command.value)
         }
         .to(kafkaSink)
         .run()
@@ -117,7 +117,9 @@ class Streams(repository: Repository, groupId: Int)(implicit
             repository.getAccount(event.accountId).map {
                 case Some(account) =>
                     if (event.accountId == 0) {
-                        println(s"BANK ACCOUNT was updated on ${event.value - event.feeValue}. Bank balance: ${account.amount}")
+                        println(
+                            s"BANK ACCOUNT was updated on ${event.value - event.feeValue}. Bank balance: ${account.amount}"
+                        )
                     } else {
                         println(s"Account ${event.accountId} was updated on ${event.value}. Balance: ${account.amount}")
                     }

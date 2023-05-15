@@ -108,11 +108,14 @@ Content-Type: application/json
 
 {
   "initialAmount": 100,
-  "categoryId": 2
+  "categoryId": 1
 }
 
 ###
 GET http://localhost:8010/account/1 HTTP/1.1
+
+###
+GET http://localhost:8010/account/2 HTTP/1.1
 
 ###
 POST http://localhost:8010/cashback/1 HTTP/1.1
