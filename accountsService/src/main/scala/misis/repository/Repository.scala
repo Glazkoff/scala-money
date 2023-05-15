@@ -16,6 +16,10 @@ class Repository() {
         accounts.keys.map(_.toString)
     }
 
+    def getAccountCategoryId(accountId: Int): Option[Int] = {
+        accounts.get(accountId).map(_.categoryId)
+    }
+
     def accountExists(accountId: Int): Boolean = {
         accounts.contains(accountId)
     }
@@ -30,14 +34,14 @@ class Repository() {
 
     def createBankAccount(initialAmount: Int = 0): Future[Account] = {
         val bankId = 0
-        val bankAccount = Account(bankId, initialAmount)
+        val bankAccount = Account(bankId, initialAmount, 0)
         accounts += (bankId -> bankAccount)
         Future.successful(bankAccount)
     }
 
-    def createAccount(initialAmount: Int = 0): Future[Account] = {
+    def createAccount(categoryId: Int, initialAmount: Int = 0): Future[Account] = {
         val newId = getNextId()
-        val account = Account(newId, initialAmount)
+        val account = Account(newId, initialAmount, categoryId)
         accounts += (newId -> account)
         Future.successful(account)
     }

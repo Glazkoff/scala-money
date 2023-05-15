@@ -89,10 +89,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8010/update/5/300 HTTP/1.1
-Content-Type: application/json
-###
-POST http://localhost:8010/update/1/1000 HTTP/1.1
+POST http://localhost:8010/update/1/2000 HTTP/1.1
 Content-Type: application/json
 
 ###
@@ -102,7 +99,7 @@ Content-Type: application/json
 {
   "sourceId": 1, 
   "destinationId": 2, 
-  "value": 900
+  "value": 500
 }
 
 ###
@@ -110,8 +107,12 @@ POST http://localhost:8010/account HTTP/1.1
 Content-Type: application/json
 
 {
-  "initialAmount": 100
+  "initialAmount": 100,
+  "categoryId": 2
 }
 
 ###
-GET http://localhost:8010/account/0 HTTP/1.1
+GET http://localhost:8010/account/1 HTTP/1.1
+
+###
+POST http://localhost:8010/cashback/1 HTTP/1.1

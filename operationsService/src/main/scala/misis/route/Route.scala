@@ -36,5 +36,10 @@ class Route(streams: Streams, repository: Repository)(implicit ec: ExecutionCont
                 val command = ShowAccountBalance(accountId)
                 repository.showAccountBalance(command)
                 complete(command)
+            } ~
+            (path("cashback" / IntNumber) & post) { accountId =>
+                val command = ReturnCashback(accountId)
+                repository.returnCashback(command)
+                complete(command)
             }
 }

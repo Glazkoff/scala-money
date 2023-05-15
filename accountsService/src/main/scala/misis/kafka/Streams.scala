@@ -83,11 +83,21 @@ class Streams(repository: Repository, groupId: Int)(implicit
             println(s"FEE VALUE:  ${command.feeValue}")
             command
         })
-        .filter(command => repository.accountExistsWithIdAndAmount(command.accountId, command.value + command.feeValue))
+        .filter(command => repository.accountExistsWithIdAndAmount(command.accountId, command.value - command.feeValue))
         .mapAsync(1) { command =>
+            val categoryId = repository.getAccountCategoryId(command.accountId).getOrElse(0)
             repository
-                .updateAccount(command.accountId, command.value + command.feeValue)
-                .map(_ => AccountUpdated(command.accountId, command.value, command.feeValue, command.nextAccountId))
+                .updateAccount(command.accountId, command.value - command.feeValue)
+                .map(_ =>
+                    AccountUpdated(
+                        command.accountId,
+                        command.value,
+                        command.feeValue,
+                        command.nextAccountId,
+                        command.previousAccountId,
+                        Some(categoryId)
+                    )
+                )
         }
         .to(kafkaSink)
         .run()
@@ -107,7 +117,7 @@ class Streams(repository: Repository, groupId: Int)(implicit
             repository.getAccount(event.accountId).map {
                 case Some(account) =>
                     if (event.accountId == 0) {
-                        println(s"BANK ACCOUNT was updated on ${event.value}. Bank balance: ${account.amount}")
+                        println(s"BANK ACCOUNT was updated on ${event.value - event.feeValue}. Bank balance: ${account.amount}")
                     } else {
                         println(s"Account ${event.accountId} was updated on ${event.value}. Balance: ${account.amount}")
                     }

@@ -22,8 +22,8 @@ object AkkaKafkaDemo extends App {
 
     val helloRoute = new HelloRoute().route
 
-    private val streams = new Streams()
-    private val repository = new Repository(streams)
+    private val repository = new Repository()
+    private val streams = new Streams(repository)
 
     val bindingFuture =
         Http()

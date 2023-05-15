@@ -29,7 +29,7 @@ class CommonStreams(repository: Repository, groupId: Int)(implicit
         .mapAsync(1) { command =>
             println(s"[GROUP ${groupId}] TRY TO CREATE ACCOUNT WITH AMOUNT: ${command.initialAmount}")
             repository
-                .createAccount(command.initialAmount)
+                .createAccount(command.categoryId, command.initialAmount)
                 .map(account => AccountCreated(account.id, account.amount))
         }
         .to(kafkaSink)

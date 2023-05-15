@@ -14,7 +14,6 @@ import scala.concurrent.ExecutionContext
 class Streams()(implicit val system: ActorSystem, executionContext: ExecutionContext) extends WithKafka {
     override def group: String = "operation"
 
-    // TO BE
     kafkaSource[AccountFromAck]
         .map { e =>
             println(
@@ -25,20 +24,11 @@ class Streams()(implicit val system: ActorSystem, executionContext: ExecutionCon
         .to(kafkaSink)
         .run()
 
-    // kafkaSource[AccountToAck]
-    //     .map { e =>
-    //         produceCommand(AccountUpdate(e.sourceId, -e.value, Some(e.destinationId)))
-    //         println(s"[1 OF 3 SUCCESS] Got all acknowledgments for accounts ${e.sourceId} and ${e.destinationId}")
-    //         e
-    //     }
-    //     .to(Sink.ignore)
-    //     .run()
-
     kafkaSource[AccountUpdated]
         .filter(event => event.nextAccountId.isDefined)
         .map { e =>
             println(s"[2 OF 3 SUCCESS] Send accrual request")
-            AccountUpdate(e.nextAccountId.getOrElse(0), -e.value)
+            AccountUpdate(e.nextAccountId.getOrElse(0), -e.value, 0, None, Some(e.accountId))
         }
         .to(kafkaSink)
         .run()

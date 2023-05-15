@@ -38,4 +38,10 @@ class Repository(streams: Streams) {
         }
     }
 
+    def returnCashback(returnCashback: ReturnCashback) = {
+        implicit val commandTopicName: TopicName[ReturnCashback] = streams.simpleTopicName[ReturnCashback]
+
+        streams.produceCommand(returnCashback)
+    }
+
 }

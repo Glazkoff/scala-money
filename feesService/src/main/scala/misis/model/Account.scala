@@ -13,5 +13,11 @@ case class AccountUpdate(
 ) extends Command
 
 trait Event
-case class AccountUpdated(accountId: Int, value: Int, feeValue: Int = 0, nextAccountId: Option[Int] = None)
-    extends Event
+case class AccountUpdated(
+    accountId: Int,
+    value: Int,
+    feeValue: Int = 0,
+    nextAccountId: Option[Int] = None,
+    previousAccountId: Option[Int] = None,
+    categoryId: Option[Int] = None
+) extends Event
